@@ -1,1 +1,1 @@
-web: sudo python CTServer.py
+web: python CTServer.py
