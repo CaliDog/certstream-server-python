@@ -50,7 +50,7 @@ class TransparencyWatcher():
     def __init__(self, loop):
         self.loop = loop
         self.stopped = False
-        self.websocket_coro = websockets.serve(self.ws_handler, 'localhost', int(os.environ.get('PORT', 8765)), loop=self.loop)
+        self.websocket_coro = websockets.serve(self.ws_handler, '0.0.0.0', int(os.environ.get('PORT', 8765)), loop=self.loop)
         self.queues = []
         logging.info("Initializing the watcher")
         logging.info("Websockets listening on port {}".format(int(os.environ.get('PORT', 8765))))
