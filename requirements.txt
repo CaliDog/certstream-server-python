@@ -1,0 +1,6 @@
+construct
+uvloop
+websockets
+requests
+PyOpenSSL
+aiohttp

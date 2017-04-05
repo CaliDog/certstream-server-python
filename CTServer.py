@@ -1,18 +1,15 @@
 import asyncio
-
 import logging
 import json
-
-# import uvloop
-# asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-from collections import OrderedDict
+import requests
+import base64
+import uvloop
+asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 import websockets
 import aiohttp
 
-import requests
-import base64
-
+from collections import OrderedDict
 from OpenSSL import crypto
 from construct import Struct, Byte, Int16ub, Int64ub, Enum, Bytes, Int24ub, this, GreedyBytes, GreedyRange, Terminated, Embedded
 
@@ -221,7 +218,7 @@ class TransparencyWatcher():
         for queue in self.queues:
             await queue.put(cert_data)
 
-logging.basicConfig(format='[%(levelname)s:%(name)s] %(asctime)s - %(message)s', level=logging.INFO)
+logging.basicConfig(format='[%(levelname)s:%(name)s] %(asctime)s - %(message)s', level=logging.DEBUG)
 logging.info("Starting...")
 loop = asyncio.get_event_loop()
 
