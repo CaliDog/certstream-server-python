@@ -75,10 +75,10 @@ class TransparencyWatcher():
             await asyncio.sleep(30)
             logging.info("Sending ping...")
             for queue in self.queues:
-                await queue.put(json.dumps({
+                await queue.put({
                     "message_type": "heartbeat",
                     "timestamp": time.time()
-                }))
+                })
 
     def initialize_ts_lists(self):
         self.transparency_lists = requests.get('https://www.certificate-transparency.org/known-logs/log_list.json?attredirects=0').json()
@@ -217,6 +217,8 @@ class TransparencyWatcher():
                     end = tree_size - 1
                 else:
                     end = start + self.MAX_BLOCK_SIZE
+
+                assert end > start
 
                 async with session.get(
                         "https://{}/ct/v1/get-entries?start={}&end={}".format(operator_information['url'],
