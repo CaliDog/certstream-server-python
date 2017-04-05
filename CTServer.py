@@ -4,6 +4,8 @@ import json
 import requests
 import base64
 import os
+import time
+
 import uvloop
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
@@ -67,6 +69,17 @@ class TransparencyWatcher():
                 self.queues.remove(queue)
                 return
 
+    async def ws_heartbeats(self):
+        logging.info("Starting WS heartbeat coro...")
+        while True:
+            await asyncio.sleep(30)
+            logging.info("Sending ping...")
+            for queue in self.queues:
+                await queue.put(json.dumps({
+                    "message_type": "heartbeat",
+                    "timestamp": time.time()
+                }))
+
     def initialize_ts_lists(self):
         self.transparency_lists = requests.get('https://www.certificate-transparency.org/known-logs/log_list.json?attredirects=0').json()
         logging.info("Retrieved transparency list with {} entries to watch.".format(len(self.transparency_lists['logs'])))
@@ -79,6 +92,7 @@ class TransparencyWatcher():
                       if operator['url'] not in self.BAD_CT_SERVERS]
 
         coroutines.append(self.websocket_coro)
+        coroutines.append(self.ws_heartbeats())
 
         self.tasks = await asyncio.gather(*coroutines)
 
@@ -148,7 +162,7 @@ class TransparencyWatcher():
             tree_size = info.get('tree_size')
 
             if latest_size == 0:
-                latest_size = tree_size - 50
+                latest_size = tree_size
 
             if latest_size < tree_size:
                 logging.info('[{}] [{} -> {}] New certs found, updating!'.format(name, latest_size, tree_size))
@@ -210,6 +224,8 @@ class TransparencyWatcher():
                                                                               end)
                 ) as response:
                     certificates = await response.json()
+                    if 'error_message' in certificates:
+                        print("error!")
                     results += certificates['entries']
 
                 start += self.MAX_BLOCK_SIZE + 1
@@ -218,7 +234,10 @@ class TransparencyWatcher():
 
     async def push_new_message_to_clients(self, cert_data):
         for queue in self.queues:
-            await queue.put(cert_data)
+            await queue.put({
+                "message_type": "certificate_update",
+                "data": cert_data
+            })
 
 logging.basicConfig(format='[%(levelname)s:%(name)s] %(asctime)s - %(message)s', level=logging.DEBUG)
 logging.info("Starting...")
