@@ -3,6 +3,7 @@ import logging
 import json
 import requests
 import base64
+import os
 import uvloop
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
@@ -49,9 +50,10 @@ class TransparencyWatcher():
     def __init__(self, loop):
         self.loop = loop
         self.stopped = False
-        self.websocket_coro = websockets.serve(self.ws_handler, 'localhost', 80, loop=self.loop)
+        self.websocket_coro = websockets.serve(self.ws_handler, 'localhost', os.environ.get('PORT', 8765), loop=self.loop)
         self.queues = []
         logging.info("Initializing the watcher")
+        logging.info("Websockets listening on port {}".format(os.environ.get('PORT', 8765)))
 
     async def ws_handler(self, websocket, path):
         queue = asyncio.Queue()
