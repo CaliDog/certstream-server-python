@@ -1,6 +1,8 @@
 import asyncio
 import logging
 import json
+
+import math
 import requests
 import base64
 import os
@@ -146,7 +148,6 @@ class TransparencyWatcher():
         return cert_data
 
     async def watch_for_updates_task(self, operator_information):
-        await asyncio.sleep(5)
         latest_size = 0
         name = operator_information['description']
         while not self.stopped:
@@ -162,7 +163,7 @@ class TransparencyWatcher():
             tree_size = info.get('tree_size')
 
             if latest_size == 0:
-                latest_size = tree_size
+                latest_size = tree_size - 66
 
             if latest_size < tree_size:
                 logging.info('[{}] [{} -> {}] New certs found, updating!'.format(name, latest_size, tree_size))
@@ -206,19 +207,21 @@ class TransparencyWatcher():
 
     async def get_new_results(self, operator_information, latest_size, tree_size):
         results = []
-        total_size = tree_size - latest_size
+        # The top of the tree isn't actually a cert yet, so the total_size is what we're aiming for
+        total_size = (tree_size - 1) - latest_size
         start = latest_size
-        chunks = int((total_size - 1) / self.MAX_BLOCK_SIZE) + 1
+        chunks = math.ceil(total_size / self.MAX_BLOCK_SIZE)
 
-        logging.info("Retrieving {} certificates ({} -> {}) for {}".format(tree_size-latest_size, tree_size, latest_size, operator_information['description']))
+        logging.info("Retrieving {} certificates ({} -> {}) for {}".format(tree_size-latest_size, latest_size, tree_size, operator_information['description']))
         async with aiohttp.ClientSession(loop=self.loop) as session:
             for _ in range(chunks):
-                if start + self.MAX_BLOCK_SIZE > tree_size:
+                if (start + self.MAX_BLOCK_SIZE) >= tree_size:
                     end = tree_size - 1
                 else:
                     end = start + self.MAX_BLOCK_SIZE
 
-                assert end > start
+                assert end >= start
+                assert end < tree_size
 
                 async with session.get(
                         "https://{}/ct/v1/get-entries?start={}&end={}".format(operator_information['url'],
@@ -230,7 +233,7 @@ class TransparencyWatcher():
                         print("error!")
                     results += certificates['entries']
 
-                start += self.MAX_BLOCK_SIZE + 1
+                start += (self.MAX_BLOCK_SIZE + 1)
 
         return results
 
