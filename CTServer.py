@@ -137,7 +137,11 @@ class TransparencyWatcher():
         }
 
     def _add_all_domains(self, cert_data):
-        all_domains = [cert_data['leaf_cert']['subject']['CN'],]
+        all_domains = []
+
+        # Apparently we have certificates with null CNs....what?
+        if cert_data['leaf_cert']['subject']['CN']:
+            all_domains.append(cert_data['leaf_cert']['subject']['CN'])
 
         for entry in cert_data['leaf_cert']['extensions']['subjectAltName'].split(', '):
             if entry.startswith('DNS:'):
@@ -163,7 +167,7 @@ class TransparencyWatcher():
             tree_size = info.get('tree_size')
 
             if latest_size == 0:
-                latest_size = tree_size - 66
+                latest_size = tree_size
 
             if latest_size < tree_size:
                 logging.info('[{}] [{} -> {}] New certs found, updating!'.format(name, latest_size, tree_size))
