@@ -76,10 +76,11 @@ class TransparencyWatcher():
         while True:
             await asyncio.sleep(30)
             logging.info("Sending ping...")
+            timestamp = time.time()
             for queue in self.queues:
                 await queue.put({
                     "message_type": "heartbeat",
-                    "timestamp": time.time()
+                    "timestamp": timestamp
                 })
 
     def initialize_ts_lists(self):
@@ -143,9 +144,12 @@ class TransparencyWatcher():
         if cert_data['leaf_cert']['subject']['CN']:
             all_domains.append(cert_data['leaf_cert']['subject']['CN'])
 
-        for entry in cert_data['leaf_cert']['extensions']['subjectAltName'].split(', '):
-            if entry.startswith('DNS:'):
-                all_domains.append(entry.replace('DNS:', ''))
+        SAN = cert_data['leaf_cert']['extensions'].get('subjectAltName')
+
+        if SAN:
+            for entry in SAN.split(', '):
+                if entry.startswith('DNS:'):
+                    all_domains.append(entry.replace('DNS:', ''))
 
         cert_data['leaf_cert']['all_domains'] = list(OrderedDict.fromkeys(all_domains))
 
@@ -226,8 +230,8 @@ class TransparencyWatcher():
                 if end >= tree_size:
                     end = tree_size - 1
 
-                assert end >= start
-                assert end < tree_size
+                assert end >= start, "End {} is less than start {}!".format(end, start)
+                assert end < tree_size, "End {} is less than tree_size {}".format(end, tree_size)
 
                 async with session.get(
                         "https://{}/ct/v1/get-entries?start={}&end={}".format(operator_information['url'],
