@@ -214,15 +214,17 @@ class TransparencyWatcher():
         # The top of the tree isn't actually a cert yet, so the total_size is what we're aiming for
         total_size = (tree_size - 1) - latest_size
         start = latest_size
+
+        end = start + self.MAX_BLOCK_SIZE
+
         chunks = math.ceil(total_size / self.MAX_BLOCK_SIZE)
 
         logging.info("Retrieving {} certificates ({} -> {}) for {}".format(tree_size-latest_size, latest_size, tree_size, operator_information['description']))
         async with aiohttp.ClientSession(loop=self.loop) as session:
             for _ in range(chunks):
-                if (start + self.MAX_BLOCK_SIZE) >= tree_size:
+                # Cap the end to the last record in the DB
+                if end >= tree_size:
                     end = tree_size - 1
-                else:
-                    end = start + self.MAX_BLOCK_SIZE
 
                 assert end >= start
                 assert end < tree_size
@@ -238,6 +240,8 @@ class TransparencyWatcher():
                     results += certificates['entries']
 
                 start += (self.MAX_BLOCK_SIZE + 1)
+
+                end = start + self.MAX_BLOCK_SIZE
 
         return results
 
