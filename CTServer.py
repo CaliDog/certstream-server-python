@@ -8,8 +8,8 @@ import base64
 import os
 import time
 
-import uvloop
-asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+# import uvloop
+# asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 import websockets
 import aiohttp
@@ -49,6 +49,7 @@ class TransparencyWatcher():
         'log.certly.io',
         'ctlog.wosign.com',
     ]
+
     MAX_BLOCK_SIZE = 64
 
     def __init__(self, loop):
@@ -74,8 +75,8 @@ class TransparencyWatcher():
     async def ws_heartbeats(self):
         logging.info("Starting WS heartbeat coro...")
         while True:
-            await asyncio.sleep(30)
-            logging.info("Sending ping...")
+            await asyncio.sleep(10)
+            logging.debug("Sending ping...")
             timestamp = time.time()
             for queue in self.queues:
                 await queue.put({
@@ -177,31 +178,34 @@ class TransparencyWatcher():
                 logging.info('[{}] [{} -> {}] New certs found, updating!'.format(name, latest_size, tree_size))
 
                 try:
-                    results = await self.get_new_results(operator_information, latest_size, tree_size)
+                    async for result_chunk in self.get_new_results(operator_information, latest_size, tree_size):
+                        for entry in result_chunk:
+                            mtl = MerkleTreeHeader.parse(base64.b64decode(entry['leaf_input']))
+                            if mtl.LogEntryType == "X509LogEntryType":
+                                chain = [crypto.load_certificate(crypto.FILETYPE_ASN1, Certificate.parse(mtl.Entry).CertData)]
+                                extra_data = CertificateChain.parse(base64.b64decode(entry['extra_data']))
+                                for cert in extra_data.Chain:
+                                    chain.append(crypto.load_certificate(crypto.FILETYPE_ASN1, cert.CertData))
+                            else:
+                                extra_data = PreCertEntry.parse(base64.b64decode(entry['extra_data']))
+                                chain = [crypto.load_certificate(crypto.FILETYPE_ASN1, extra_data.LeafCert.CertData)]
 
-                    for entry in results:
-                        mtl = MerkleTreeHeader.parse(base64.b64decode(entry['leaf_input']))
-                        if mtl.LogEntryType == "X509LogEntryType":
-                            chain = [crypto.load_certificate(crypto.FILETYPE_ASN1, Certificate.parse(mtl.Entry).CertData)]
-                            extra_data = CertificateChain.parse(base64.b64decode(entry['extra_data']))
-                            for cert in extra_data.Chain:
-                                chain.append(crypto.load_certificate(crypto.FILETYPE_ASN1, cert.CertData))
-                        else:
-                            extra_data = PreCertEntry.parse(base64.b64decode(entry['extra_data']))
-                            chain = [crypto.load_certificate(crypto.FILETYPE_ASN1, extra_data.LeafCert.CertData)]
+                                for cert in extra_data.Chain:
+                                    chain.append(
+                                        crypto.load_certificate(crypto.FILETYPE_ASN1, cert.CertData)
+                                    )
 
-                            for cert in extra_data.Chain:
-                                chain.append(
-                                    crypto.load_certificate(crypto.FILETYPE_ASN1, cert.CertData)
-                                )
+                            cert_data = {
+                                "leaf_cert": self._dump_cert(chain[0]),
+                                "chain": [self._dump_cert(x) for x in chain[1:]]
+                            }
 
-                        cert_data = {
-                            "leaf_cert": self._dump_cert(chain[0]),
-                            "chain": [self._dump_cert(x) for x in chain[1:]]
-                        }
-                        self._add_all_domains(cert_data)
+                            self._add_all_domains(cert_data)
 
-                        await self.push_new_message_to_clients(cert_data)
+                            await self.push_new_message_to_clients(cert_data)
+
+                            #del cert_data
+
                 except aiohttp.ClientError as e:
                     logging.info('[{}] Exception -> {}'.format(name, e))
                     await asyncio.sleep(5)
@@ -214,7 +218,6 @@ class TransparencyWatcher():
             await asyncio.sleep(5)
 
     async def get_new_results(self, operator_information, latest_size, tree_size):
-        results = []
         # The top of the tree isn't actually a cert yet, so the total_size is what we're aiming for
         total_size = (tree_size - 1) - latest_size
         start = latest_size
@@ -241,13 +244,13 @@ class TransparencyWatcher():
                     certificates = await response.json()
                     if 'error_message' in certificates:
                         print("error!")
-                    results += certificates['entries']
+
+                    yield certificates['entries']
 
                 start += self.MAX_BLOCK_SIZE
 
                 end = start + self.MAX_BLOCK_SIZE + 1
 
-        return results
 
     async def push_new_message_to_clients(self, cert_data):
         for queue in self.queues:
@@ -258,6 +261,7 @@ class TransparencyWatcher():
 
 logging.basicConfig(format='[%(levelname)s:%(name)s] %(asctime)s - %(message)s', level=logging.DEBUG)
 logging.info("Starting...")
+
 loop = asyncio.get_event_loop()
 
 watcher = TransparencyWatcher(loop)
