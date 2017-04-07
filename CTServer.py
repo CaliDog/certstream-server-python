@@ -243,9 +243,9 @@ class TransparencyWatcher():
                         print("error!")
                     results += certificates['entries']
 
-                start += (self.MAX_BLOCK_SIZE + 1)
+                start += self.MAX_BLOCK_SIZE
 
-                end = start + self.MAX_BLOCK_SIZE
+                end = start + self.MAX_BLOCK_SIZE + 1
 
         return results
 
