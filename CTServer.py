@@ -3,6 +3,8 @@ import logging
 import json
 
 import math
+
+import datetime
 import requests
 import base64
 import os
@@ -109,21 +111,25 @@ class TransparencyWatcher():
     def _dump_extensions(self, certificate):
         extensions = {}
         for x in range(certificate.get_extension_count()):
+            extension_name = ""
             try:
                 extension_name = certificate.get_extension(x).get_short_name()
+
                 if extension_name == b'UNDEF':
                     continue
-                extensions[extension_name.decode('utf-8')] = certificate.get_extension(x).__str__()
-            except Exception as e:
-                identifier = certificate.get_subject().CN.replace(' ', '_')
-                logging.error('Exception parsing extensions :( [{}]'.format(identifier))
-                cert_der = crypto.dump_certificate(crypto.FILETYPE_ASN1, certificate)
-                with open('/tmp/{}.der'.format(identifier), 'wb') as f:
-                    f.write(cert_der)
+
+                extensions[extension_name.decode('latin-1').encode("utf-8")] = certificate.get_extension(x).__str__().decode('latin-1').encode("utf-8")
+            except:
+                try:
+                    extensions[extension_name.decode('latin-1').encode("utf-8")] = "NULL"
+                except Exception as e:
+                    logging.debug("Extension parsing error -> {}".format(e))
         return extensions
 
     def _dump_cert(self, certificate):
         subject = certificate.get_subject()
+        not_before_datetime = datetime.datetime.strptime(certificate.get_notBefore(), "%Y%m%d%H%M%SZ")
+        not_after_datetime = datetime.datetime.strptime(certificate.get_notAfter(), "%Y%m%d%H%M%SZ")
         return {
             "subject": {
                 "aggregated": repr(certificate.get_subject())[18:-2],
@@ -135,6 +141,8 @@ class TransparencyWatcher():
                 "CN": subject.CN
             },
             "extensions": self._dump_extensions(certificate),
+            "not_before": not_before_datetime.timestamp(),
+            "not_after": not_after_datetime.timestamp(),
             "as_der": base64.b64encode(crypto.dump_certificate(crypto.FILETYPE_ASN1, certificate)).decode('utf-8')
         }
 
@@ -181,12 +189,17 @@ class TransparencyWatcher():
                     async for result_chunk in self.get_new_results(operator_information, latest_size, tree_size):
                         for entry in result_chunk:
                             mtl = MerkleTreeHeader.parse(base64.b64decode(entry['leaf_input']))
+
+                            cert_data = {}
+
                             if mtl.LogEntryType == "X509LogEntryType":
+                                cert_data['type'] = "X509LogEntry"
                                 chain = [crypto.load_certificate(crypto.FILETYPE_ASN1, Certificate.parse(mtl.Entry).CertData)]
                                 extra_data = CertificateChain.parse(base64.b64decode(entry['extra_data']))
                                 for cert in extra_data.Chain:
                                     chain.append(crypto.load_certificate(crypto.FILETYPE_ASN1, cert.CertData))
                             else:
+                                cert_data['type'] = "PreCertEntry"
                                 extra_data = PreCertEntry.parse(base64.b64decode(entry['extra_data']))
                                 chain = [crypto.load_certificate(crypto.FILETYPE_ASN1, extra_data.LeafCert.CertData)]
 
@@ -195,16 +208,14 @@ class TransparencyWatcher():
                                         crypto.load_certificate(crypto.FILETYPE_ASN1, cert.CertData)
                                     )
 
-                            cert_data = {
+                            cert_data.update({
                                 "leaf_cert": self._dump_cert(chain[0]),
                                 "chain": [self._dump_cert(x) for x in chain[1:]]
-                            }
+                            })
 
                             self._add_all_domains(cert_data)
 
                             await self.push_new_message_to_clients(cert_data)
-
-                            #del cert_data
 
                 except aiohttp.ClientError as e:
                     logging.info('[{}] Exception -> {}'.format(name, e))
@@ -259,7 +270,7 @@ class TransparencyWatcher():
                 "data": cert_data
             })
 
-logging.basicConfig(format='[%(levelname)s:%(name)s] %(asctime)s - %(message)s', level=logging.DEBUG)
+logging.basicConfig(format='[%(levelname)s:%(name)s] %(asctime)s - %(message)s', level=logging.INFO)
 logging.info("Starting...")
 
 loop = asyncio.get_event_loop()
