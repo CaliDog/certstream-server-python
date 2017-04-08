@@ -128,8 +128,8 @@ class TransparencyWatcher():
 
     def _dump_cert(self, certificate):
         subject = certificate.get_subject()
-        not_before_datetime = datetime.datetime.strptime(certificate.get_notBefore(), "%Y%m%d%H%M%SZ")
-        not_after_datetime = datetime.datetime.strptime(certificate.get_notAfter(), "%Y%m%d%H%M%SZ")
+        not_before_datetime = datetime.datetime.strptime(certificate.get_notBefore().decode('ascii'), "%Y%m%d%H%M%SZ")
+        not_after_datetime = datetime.datetime.strptime(certificate.get_notAfter().decode('ascii'), "%Y%m%d%H%M%SZ")
         return {
             "subject": {
                 "aggregated": repr(certificate.get_subject())[18:-2],
