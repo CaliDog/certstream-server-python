@@ -10,15 +10,16 @@ import base64
 import os
 import time
 
-# import uvloop
-# asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+import uvloop
+asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 import websockets
 import aiohttp
 
 from collections import OrderedDict
 from OpenSSL import crypto
-from construct import Struct, Byte, Int16ub, Int64ub, Enum, Bytes, Int24ub, this, GreedyBytes, GreedyRange, Terminated, Embedded
+from construct import Struct, Byte, Int16ub, Int64ub, Enum, Bytes, \
+    Int24ub, this, GreedyBytes, GreedyRange, Terminated, Embedded
 
 MerkleTreeHeader = Struct(
     "Version"         / Byte,
@@ -87,7 +88,7 @@ class TransparencyWatcher():
                 })
 
     def initialize_ts_lists(self):
-        self.transparency_lists = requests.get('https://www.certificate-transparency.org/known-logs/log_list.json?attredirects=0').json()
+        self.transparency_lists = requests.get('http://www.certificate-transparency.org/known-logs/log_list.json?attredirects=0').json()
         logging.info("Retrieved transparency list with {} entries to watch.".format(len(self.transparency_lists['logs'])))
         for entry in self.transparency_lists['logs']:
             logging.info("  + {}".format(entry['description']))
@@ -96,11 +97,10 @@ class TransparencyWatcher():
         self.initialize_ts_lists()
         coroutines = [self.watch_for_updates_task(operator) for operator in self.transparency_lists['logs']
                       if operator['url'] not in self.BAD_CT_SERVERS]
-
         coroutines.append(self.websocket_coro)
         coroutines.append(self.ws_heartbeats())
 
-        self.tasks = await asyncio.gather(*coroutines)
+        await asyncio.gather(*coroutines)
 
     def stop(self, loop):
         logging.info('Got stop order, exiting...')
@@ -170,7 +170,7 @@ class TransparencyWatcher():
         while not self.stopped:
             try:
                 async with aiohttp.ClientSession(loop=self.loop) as session:
-                    async with session.get("https://{}/ct/v1/get-sth".format(operator_information['url'])) as response:
+                    async with session.get("http://{}/ct/v1/get-sth".format(operator_information['url'])) as response:
                         info = await response.json()
             except aiohttp.ClientError as e:
                 logging.info('[{}] Exception -> {}'.format(name, e))
@@ -248,7 +248,7 @@ class TransparencyWatcher():
                 assert end < tree_size, "End {} is less than tree_size {}".format(end, tree_size)
 
                 async with session.get(
-                        "https://{}/ct/v1/get-entries?start={}&end={}".format(operator_information['url'],
+                        "http://{}/ct/v1/get-entries?start={}&end={}".format(operator_information['url'],
                                                                               start,
                                                                               end)
                 ) as response:
@@ -270,7 +270,7 @@ class TransparencyWatcher():
                 "data": cert_data
             })
 
-logging.basicConfig(format='[%(levelname)s:%(name)s] %(asctime)s - %(message)s', level=logging.INFO)
+logging.basicConfig(format='[%(levelname)s:%(name)s] %(asctime)s - %(message)s', level=logging.DEBUG)
 logging.info("Starting...")
 
 loop = asyncio.get_event_loop()
