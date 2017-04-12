@@ -74,6 +74,9 @@ class TransparencyWatcher():
             except websockets.ConnectionClosed:
                 self.queues.remove(queue)
                 return
+            except Exception as e:
+                print(e)
+                import sys; sys.exit(1)
 
     async def ws_heartbeats(self):
         logging.info("Starting WS heartbeat coro...")
@@ -118,10 +121,10 @@ class TransparencyWatcher():
                 if extension_name == b'UNDEF':
                     continue
 
-                extensions[extension_name.decode('latin-1').encode("utf-8")] = certificate.get_extension(x).__str__().decode('latin-1').encode("utf-8")
+                extensions[extension_name.decode('latin-1')] = certificate.get_extension(x).__str__().decode('latin-1')
             except:
                 try:
-                    extensions[extension_name.decode('latin-1').encode("utf-8")] = "NULL"
+                    extensions[extension_name.decode('latin-1')] = "NULL"
                 except Exception as e:
                     logging.debug("Extension parsing error -> {}".format(e))
         return extensions
