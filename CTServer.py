@@ -218,6 +218,11 @@ class TransparencyWatcher():
 
                             self._add_all_domains(cert_data)
 
+                            cert_data['source'] = {
+                                "url": operator_information['url'],
+                                "name": operator_information['description']
+                            }
+
                             await self.push_new_message_to_clients(cert_data)
 
                 except aiohttp.ClientError as e:
