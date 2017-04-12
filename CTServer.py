@@ -121,7 +121,7 @@ class TransparencyWatcher():
                 if extension_name == b'UNDEF':
                     continue
 
-                extensions[extension_name.decode('latin-1')] = certificate.get_extension(x).__str__().decode('latin-1')
+                extensions[extension_name.decode('latin-1')] = certificate.get_extension(x).__str__()
             except:
                 try:
                     extensions[extension_name.decode('latin-1')] = "NULL"
