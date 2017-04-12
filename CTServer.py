@@ -278,7 +278,7 @@ class TransparencyWatcher():
                 "data": cert_data
             })
 
-logging.basicConfig(format='[%(levelname)s:%(name)s] %(asctime)s - %(message)s', level=logging.DEBUG)
+logging.basicConfig(format='[%(levelname)s:%(name)s] %(asctime)s - %(message)s', level=logging.INFO)
 logging.info("Starting...")
 
 loop = asyncio.get_event_loop()
