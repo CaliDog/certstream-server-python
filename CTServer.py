@@ -15,6 +15,7 @@ asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 import websockets
 import aiohttp
+from aiohttp import web
 
 from collections import OrderedDict
 from OpenSSL import crypto
@@ -55,28 +56,41 @@ class TransparencyWatcher():
 
     MAX_BLOCK_SIZE = 64
 
-    def __init__(self, loop):
+    def __init__(self, loop, app):
         self.loop = loop
         self.stopped = False
-        self.websocket_coro = websockets.serve(self.ws_handler, '0.0.0.0', int(os.environ.get('PORT', 8765)), loop=self.loop)
+
+        app.router.add_get('/', self.websocket_handler)
+
         self.queues = []
         logging.info("Initializing the watcher")
         logging.info("Websockets listening on port {}".format(int(os.environ.get('PORT', 8765))))
 
-    async def ws_handler(self, websocket, path):
-        queue = asyncio.Queue()
-        self.queues.append(queue)
-        while True:
-            message = await queue.get()
+    async def websocket_handler(self, request):
+
+        if request.headers.get("Upgrade"):
+            ws = web.WebSocketResponse()
+            await ws.prepare(request)
+
+            queue = asyncio.Queue()
+            self.queues.append(queue)
+
             try:
-                message_json = json.dumps(message)
-                await websocket.send(message_json)
-            except websockets.ConnectionClosed:
+                while True:
+                    message = await queue.get()
+                    message_json = json.dumps(message)
+                    await ws.send_str(message_json)
+            except asyncio.CancelledError:
+                print('websocket cancelled')
+            finally:
                 self.queues.remove(queue)
-                return
-            except Exception as e:
-                print(e)
-                import sys; sys.exit(1)
+
+            await ws.close()
+            return ws
+        else:
+            return web.Response(body="""<html>
+            <body><h1></h1></body>
+            </html>""", content_type="text/html")
 
     async def ws_heartbeats(self):
         logging.info("Starting WS heartbeat coro...")
@@ -100,7 +114,6 @@ class TransparencyWatcher():
         self.initialize_ts_lists()
         coroutines = [self.watch_for_updates_task(operator) for operator in self.transparency_lists['logs']
                       if operator['url'] not in self.BAD_CT_SERVERS]
-        coroutines.append(self.websocket_coro)
         coroutines.append(self.ws_heartbeats())
 
         await asyncio.gather(*coroutines)
@@ -270,7 +283,6 @@ class TransparencyWatcher():
 
                 end = start + self.MAX_BLOCK_SIZE + 1
 
-
     async def push_new_message_to_clients(self, cert_data):
         for queue in self.queues:
             await queue.put({
@@ -278,15 +290,19 @@ class TransparencyWatcher():
                 "data": cert_data
             })
 
-logging.basicConfig(format='[%(levelname)s:%(name)s] %(asctime)s - %(message)s', level=logging.INFO)
+logging.basicConfig(format='[%(levelname)s:%(name)s] %(asctime)s - %(message)s', level=logging.DEBUG)
 logging.info("Starting...")
 
 loop = asyncio.get_event_loop()
 
-watcher = TransparencyWatcher(loop)
+app = web.Application(loop=loop)
+
+watcher = TransparencyWatcher(loop, app)
+
 
 try:
-    result = loop.run_until_complete(watcher.run())
+    result = asyncio.ensure_future(watcher.run())
+    web.run_app(app)
 except KeyboardInterrupt:
     watcher.stop(loop)
 
