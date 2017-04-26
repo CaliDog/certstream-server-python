@@ -302,7 +302,7 @@ watcher = TransparencyWatcher(loop, app)
 
 try:
     result = asyncio.ensure_future(watcher.run())
-    web.run_app(app)
+    web.run_app(app, port=int(os.environ.get('PORT', 8080)))
 except KeyboardInterrupt:
     watcher.stop(loop)
 
