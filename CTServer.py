@@ -3,6 +3,7 @@ import logging
 import json
 
 import math
+import sys
 
 import datetime
 import requests
@@ -105,7 +106,12 @@ class TransparencyWatcher():
                 })
 
     def initialize_ts_lists(self):
-        self.transparency_lists = requests.get('http://www.certificate-transparency.org/known-logs/log_list.json?attredirects=0').json()
+        try:
+            self.transparency_lists = requests.get('https://www.certificate-transparency.org/known-logs/all_logs_list.json?attredirects=0').json()
+        except Exception as e:
+            logging.fatal("Invalid response from certificate directory! Exiting :(")
+            sys.exit(1)
+
         logging.info("Retrieved transparency list with {} entries to watch.".format(len(self.transparency_lists['logs'])))
         for entry in self.transparency_lists['logs']:
             logging.info("  + {}".format(entry['description']))
