@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<!--
+  Original Design: Spectral by HTML5 UP
+    html5up.net | @n33co
+    Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+  Jekyll build mod
+-->
+<html>
+
+  <head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CertStream</title>
+  <meta name="description" content="A platform to build tools with <br> streaming <a href='https://www.certificate-transparency.org/what-is-ct'>Certificate Transparency List</a> updates.
+">
+  <!--[if lte IE 8]><script src="https://storage.googleapis.com/certstream-assets/js/ie/html5shiv.js"></script><![endif]-->
+  <link rel="canonical" href="https://certstream.calidog.io">
+  <link rel="stylesheet" href="https://storage.googleapis.com/certstream-assets/css/main.css" />
+  <!--[if lte IE 8]><link rel="stylesheet" href="https://storage.googleapis.com/certstream-assets/css/ie8.css" /><![endif]-->
+  <!--[if lte IE 9]><link rel="stylesheet" href="https://storage.googleapis.com/certstream-assets/css/ie9.css" /><![endif]-->
+  <link rel="alternate" type="application/rss+xml" title="CertStream" href="https://storage.googleapis.com/certstream-assets/feed.xml">
+</head>
+
+
+  <body class="landing">
+
+    <!-- Page Wrapper -->
+    <div id="page-wrapper">
+
+      <!-- Header -->
+<header id="header" class="alt">
+  <h1><a href="https://storage.googleapis.com/certstream-assets/index.html">CertStream</a></h1>
+  <nav id="nav">
+    <ul>
+      <li class="special">
+      </li>
+    </ul>
+  </nav>
+</header>
+
+
+      				<!-- Banner -->
+					<section id="banner">
+						<div class="inner">
+							<h2>CertStream</h2>
+							<p><p>A platform to build tools with <br /> streaming <a href="https://www.certificate-transparency.org/what-is-ct">Certificate Transparency List</a> updates.</p>
+</p>
+						</div>
+						<a href="#one" class="more scrolly">Learn More</a>
+					</section>
+
+				<!-- One -->
+					<section id="one" class="wrapper style1 special">
+						<div class="inner">
+							<header class="major">
+								<h2>Try it</h2>
+
+<ul class="actions vertical certstream-connect-button">
+<li><a class="button">Connect to certstream</a></li>
+</ul>								
+<figure class="highlight">
+<pre><code class="language-bash live-demo" data-lang="bash"><div class="output-demo"><p class="marginless intro-info">Click the "Connect To Certstream" to see live updates.</p></div></code></pre>
+<div class="wsi-holder"><div class="websocket-indicator disconnected"></div></div>
+</figure>								
+
+
+
+								<h2>Get Started</h2>
+								<p class="left-aligned">Install CertStream</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">~ <span class="nv">$ </span>sudo pip install certstream</code></pre></figure>
+
+								<p class="left-aligned">CertStream CLI</p>
+<p class="left-aligned smaller">
+The default invocation of certstream connects to the network and outputs a greppable format.
+</p>
+<figure class="highlight">
+<pre><code class="language-bash" data-lang="bash">~ <span class="nv">$ </span>certstream<div class="output-cli"></div></code></pre>
+</figure>
+
+<p class="left-aligned smaller">It also supports substring matching and writing found matches to a file.</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">~ <span class="nv">$ </span>certstream <span class="s2">"paypal"</span> -w /tmp/certs/paypal/
+Wrote paypal.com.preview-page.tk -&gt; /tmp/certs/paypal/1494116022.paypal.com.preview-page.tk.der
+Wrote paypal.com.realtime.supports247realtime.net -&gt; /tmp/certs/paypal/1494116049.paypal.com.realtime.supports247realtime.net.der
+Wrote www.paypal-securityunusualactivity.com -&gt; /tmp/certs/paypal/1494116063.www.paypal-securityunusualactivity.com.der
+Wrote paypal.com.informationmail.me -&gt; /tmp/certs/paypal/1494116090.paypal.com.informationmail.me.der
+Wrote www.paypal.com-signinto.limited -&gt; /tmp/certs/paypal/1494116120.www.paypal.com-signinto.limited.der
+Wrote www.paypal.co.manager-help.com -&gt; /tmp/certs/paypal/1494116123.www.paypal.co.manager-help.com.der
+Wrote paypal.com.resolution.limited -&gt; /tmp/certs/paypal/1494116180.paypal.com.resolution.limited.der
+Wrote paypal.com-signin.summary-account.ml -&gt; /tmp/certs/paypal/1494116195.paypal.com-signin.summary-account.ml.der
+Wrote www.paypal.com.service-information.nut.cc -&gt; /tmp/certs/paypal/1494116255.www.paypal.com.service-information.nut.cc.der
+Wrote paypal.com-accountsfraud.com -&gt; /tmp/certs/paypal/1494116281.paypal.com-accountsfraud.com.der</code></pre></figure>
+
+								<p class="left-aligned">Library Usage</p>
+
+<p class="left-aligned smaller">We've written simple integrations for most popular/major languages out there. If you want to contribute more please visit <a href="https://github.com/CaliDog/CertStream">our Github and open a ticket!</a></p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">certstream</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+
+<span class="n">NEEDLE</span> <span class="o">=</span> <span class="s">"paypal"</span>
+
+<span class="c"># Search for domains with a keyword in them and write the corresponding certificate to a file</span>
+<span class="k">def</span> <span class="nf">certstream_callback</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">message</span><span class="p">[</span><span class="s">'message_type'</span><span class="p">]</span> <span class="o">==</span> <span class="s">"certificate_update"</span><span class="p">:</span>
+       	<span class="n">all_domains</span> <span class="o">=</span> <span class="n">message</span><span class="p">[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'leaf_cert'</span><span class="p">][</span><span class="s">'all_domains'</span><span class="p">]</span>
+    	<span class="n">found</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">all_domains</span> <span class="k">if</span> <span class="n">NEEDLE</span> <span class="ow">in</span> <span class="n">x</span><span class="p">),</span> <span class="p">[])</span>
+    	<span class="k">if</span> <span class="n">found</span><span class="p">:</span>
+    		<span class="n">cn</span> <span class="o">=</span> <span class="n">all_domains</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    		<span class="n">filename</span> <span class="o">=</span> <span class="s">"/tmp/{}"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cn</span><span class="p">)</span>
+    		<span class="k">print</span><span class="p">(</span><span class="s">"Found {} in cert for {}. Writing to {}."</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">NEEDLE</span><span class="p">,</span> <span class="n">cn</span><span class="p">,</span> <span class="n">filename</span><span class="p">))</span>
+    		<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    			<span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">base64</span><span class="o">.</span><span class="n">b64decode</span><span class="p">(</span><span class="n">message</span><span class="p">[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'leaf_cert'</span><span class="p">][</span><span class="s">'as_der'</span><span class="p">]))</span>
+
+<span class="n">certstream</span><span class="o">.</span><span class="n">listen_for_events</span><span class="p">(</span><span class="n">certstream_callback</span><span class="p">)</span></code></pre></figure>
+
+
+<h2>Data Structures</h2>
+<p class="left-aligned smaller">We send heartbeat messages to keep connections alive:</p>
+<figure class="highlight"><pre><code class="language-json" data-lang="json"><span class="p">{</span><span class="w">
+  </span><span class="nt">"message_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"heartbeat"</span><span class="p">,</span><span class="w">   
+  </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="mf">1494117538.63217</span><span class="w">  
+</span><span class="p">}</span></code></pre></figure>
+
+<p class="left-aligned smaller">And we send certificate updates:</p>
+
+<figure class="highlight"><pre><code class="language-json" data-lang="json"><span class="p">{</span><span class="w">
+    </span><span class="nt">"message_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"certificate_update"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"X509LogEntry"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"leaf_cert"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"subject"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"aggregated"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/OU=Domain Control Validated/OU=PositiveSSL Multi-Domain/CN=sni78222.cloudflaressl.com"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"C"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"ST"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"L"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"O"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"OU"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Domain Control Validated"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"CN"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sni78222.cloudflaressl.com"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"extensions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"authorityKeyIdentifier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"keyid:40:09:61:67:F0:BC:83:71:4F:DE:12:08:2C:6F:D4:D4:2B:76:3D:96\n"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"subjectKeyIdentifier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"44:2B:CE:5A:98:5D:CF:96:30:60:42:51:24:CB:D2:7E:8A:D0:30:F0"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"keyUsage"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Digital Signature"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"basicConstraints"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CA:FALSE"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"extendedKeyUsage"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TLS Web Server Authentication, TLS Web Client Authentication"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"certificatePolicies"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Policy: 1.3.6.1.4.1.6449.1.2.2.7\n  CPS: https://secure.comodo.com/CPS\nPolicy: 2.23.140.1.2.1\n"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"crlDistributionPoints"</span><span class="p">:</span><span class="w"> </span><span class="s2">"\nFull Name:\n  URI:http://crl.comodoca4.com/COMODOECCDomainValidationSecureServerCA2.crl\n"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"authorityInfoAccess"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CA Issuers - URI:http://crt.comodoca4.com/COMODOECCDomainValidationSecureServerCA2.crt\nOCSP - URI:http://ocsp.comodoca4.com\n"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"subjectAltName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"DNS:sni78222.cloudflaressl.com, DNS:*.1telecom.nl, DNS:*.chernoezerkalo.ru, DNS:*.cinemareport.ru, ...snip"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"not_before"</span><span class="p">:</span><span class="w"> </span><span class="mf">1494028800.0</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"not_after"</span><span class="p">:</span><span class="w"> </span><span class="mf">1510531199.0</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"as_der"</span><span class="p">:</span><span class="w"> </span><span class="s2">"MIIG...m5PA=="</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"all_domains"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="s2">"sni78222.cloudflaressl.com"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"*.1telecom.nl"</span><span class="p">,</span><span class="w">
+                </span><span class="err">//</span><span class="w"> </span><span class="err">...SNIP...</span><span class="w">
+            </span><span class="p">]</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nt">"chain"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"subject"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"aggregated"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/C=GB/ST=Greater Manchester/L=Salford/O=COMODO CA Limited/CN=COMODO ECC Domain Validation Secure Server CA 2"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"C"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GB"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"ST"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Greater Manchester"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"L"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Salford"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"O"</span><span class="p">:</span><span class="w"> </span><span class="s2">"COMODO CA Limited"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"OU"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"CN"</span><span class="p">:</span><span class="w"> </span><span class="s2">"COMODO ECC Domain Validation Secure Server CA 2"</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="nt">"extensions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"authorityKeyIdentifier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"keyid:75:71:A7:19:48:19:BC:9D:9D:EA:41:47:DF:94:C4:48:77:99:D3:79\n"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"subjectKeyIdentifier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"40:09:61:67:F0:BC:83:71:4F:DE:12:08:2C:6F:D4:D4:2B:76:3D:96"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"keyUsage"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Digital Signature, Certificate Sign, CRL Sign"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"basicConstraints"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CA:TRUE, pathlen:0"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"extendedKeyUsage"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TLS Web Server Authentication, TLS Web Client Authentication"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"certificatePolicies"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Policy: X509v3 Any Policy\nPolicy: 2.23.140.1.2.1\n"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"crlDistributionPoints"</span><span class="p">:</span><span class="w"> </span><span class="s2">"\nFull Name:\n  URI:http://crl.comodoca.com/COMODOECCCertificationAuthority.crl\n"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"authorityInfoAccess"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CA Issuers - URI:http://crt.comodoca.com/COMODOECCAddTrustCA.crt\nOCSP - URI:http://ocsp.comodoca4.com\n"</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="nt">"not_before"</span><span class="p">:</span><span class="w"> </span><span class="mf">1411603200.0</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"not_after"</span><span class="p">:</span><span class="w"> </span><span class="mf">1884988799.0</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"as_der"</span><span class="p">:</span><span class="w"> </span><span class="s2">"MIID...Ug=="</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"subject"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"aggregated"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/C=GB/ST=Greater Manchester/L=Salford/O=COMODO CA Limited/CN=COMODO ECC Certification Authority"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"C"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GB"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"ST"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Greater Manchester"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"L"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Salford"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"O"</span><span class="p">:</span><span class="w"> </span><span class="s2">"COMODO CA Limited"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"OU"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"CN"</span><span class="p">:</span><span class="w"> </span><span class="s2">"COMODO ECC Certification Authority"</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="nt">"extensions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"subjectKeyIdentifier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"75:71:A7:19:48:19:BC:9D:9D:EA:41:47:DF:94:C4:48:77:99:D3:79"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"keyUsage"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Certificate Sign, CRL Sign"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"basicConstraints"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CA:TRUE"</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="nt">"not_before"</span><span class="p">:</span><span class="w"> </span><span class="mf">1204761600.0</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"not_after"</span><span class="p">:</span><span class="w"> </span><span class="mf">2147471999.0</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"as_der"</span><span class="p">:</span><span class="w"> </span><span class="s2">"MIIC...SOdY="</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="nt">"source"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ct.googleapis.com/skydiver"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Google 'Skydiver' log"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span></code></pre></figure>
+
+
+							</header>
+							<!-- <ul class="icons major">
+								<li><span class="icon fa-diamond major style1"><span class="label">Lorem</span></span></li>
+								<li><span class="icon fa-heart-o major style2"><span class="label">Ipsum</span></span></li>
+								<li><span class="icon fa-code major style3"><span class="label">Dolor</span></span></li>
+							</ul> -->
+						</div>
+					</section>
+
+	
+
+				<!-- CTA -->
+				<!-- 	<section id="cta" class="wrapper style4">
+						<div class="inner">
+							<header>
+								<h2>Arcue ut vel commodo</h2>
+								<p>Aliquam ut ex ut augue consectetur interdum endrerit imperdiet amet eleifend fringilla.</p>
+							</header>
+							<ul class="actions vertical">
+								<li><a href="#" class="button fit special">Activate</a></li>
+								<li><a href="#" class="button fit">Learn More</a></li>
+							</ul>
+						</div>
+					</section> -->
+
+
+      <!-- Footer -->
+<footer id="footer">
+  <ul class="icons">
+    
+    
+    
+    <li><a target="_blank" href="https://twitter.com/calidogsec" class="icon fa-twitter"
+           ><span class="label">twitter</span></a></li>
+    
+    
+    
+    
+    
+    <li><a target="_blank" href="https://github.com/calidog" class="icon fa-github"
+           ><span class="label">github</span></a></li>
+    
+    
+    
+  </ul>
+  <ul class="copyright">
+    <li>&copy; 
+    
+      
+      
+    
+    2017
+    Cali Dog Security</li>
+    <li>Design: <a href="http://html5up.net" target="_blank">HTML5 UP</a></li>
+  </ul>
+</footer>
+
+
+      <!-- Scripts -->
+<script src="https://storage.googleapis.com/certstream-assets/js/jquery.min.js"></script>
+<script src="https://storage.googleapis.com/certstream-assets/js/jquery.scrollex.min.js"></script>
+<script src="https://storage.googleapis.com/certstream-assets/js/jquery.scrolly.min.js"></script>
+<script src="https://storage.googleapis.com/certstream-assets/js/skel.min.js"></script>
+<script src="https://storage.googleapis.com/certstream-assets/js/util.js"></script>
+<script src="https://storage.googleapis.com/certstream-assets/js/reconnecting-websocket.min.js"></script>
+<!--[if lte IE 8]><script src="https://storage.googleapis.com/certstream-assets/js/ie/respond.min.js"></script><![endif]-->
+<script src="https://storage.googleapis.com/certstream-assets/js/main.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+
+<script src="https://storage.googleapis.com/certstream-assets/js/websockets.js"></script>
+
+
+
+    </div>
+
+  </body>
+
+</html>

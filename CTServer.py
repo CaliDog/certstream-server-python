@@ -47,6 +47,9 @@ PreCertEntry = Struct(
     Terminated
 )
 
+with open('html/_site/index.html', 'r') as f:
+    index_html = f.read()
+
 class TransparencyWatcher():
     BAD_CT_SERVERS = [
         'ct.izenpe.com',
@@ -89,9 +92,7 @@ class TransparencyWatcher():
             await ws.close()
             return ws
         else:
-            return web.Response(body="""<html>
-            <body><h1></h1></body>
-            </html>""", content_type="text/html")
+            return web.Response(body=index_html, content_type="text/html")
 
     async def ws_heartbeats(self):
         logging.info("Starting WS heartbeat coro...")

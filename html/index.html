@@ -1,0 +1,208 @@
+---
+layout: landing
+---
+				<!-- Banner -->
+					<section id="banner">
+						<div class="inner">
+							<h2>{{ site.title }}</h2>
+							<p>{{ site.description | markdownify }}</p>
+						</div>
+						<a href="#one" class="more scrolly">Learn More</a>
+					</section>
+
+				<!-- One -->
+					<section id="one" class="wrapper style1 special">
+						<div class="inner">
+							<header class="major">
+								<h2>Try it</h2>
+
+<ul class="actions vertical certstream-connect-button">
+<li><a class="button">Connect to certstream</a></li>
+</ul>								
+<figure class="highlight">
+<pre><code class="language-bash live-demo" data-lang="bash"><div class="output-demo"><p class="marginless intro-info">Click the "Connect To Certstream" to see live updates.</p></div></code></pre>
+<div class="wsi-holder"><div class="websocket-indicator disconnected"></div></div>
+</figure>								
+
+
+
+								<h2>Get Started</h2>
+								<p class="left-aligned">Install CertStream</p>
+{% highlight bash %}
+~ $ sudo pip install certstream
+{% endhighlight %}
+
+								<p class="left-aligned">CertStream CLI</p>
+<p class="left-aligned smaller">
+The default invocation of certstream connects to the network and outputs a greppable format.
+</p>
+<figure class="highlight">
+<pre><code class="language-bash" data-lang="bash">~ <span class="nv">$ </span>certstream<div class="output-cli"></div></code></pre>
+</figure>
+
+<p class="left-aligned smaller">It also supports substring matching and writing found matches to a file.</p>
+{% highlight bash %}
+~ $ certstream "paypal" -w /tmp/certs/paypal/
+Wrote paypal.com.preview-page.tk -> /tmp/certs/paypal/1494116022.paypal.com.preview-page.tk.der
+Wrote paypal.com.realtime.supports247realtime.net -> /tmp/certs/paypal/1494116049.paypal.com.realtime.supports247realtime.net.der
+Wrote www.paypal-securityunusualactivity.com -> /tmp/certs/paypal/1494116063.www.paypal-securityunusualactivity.com.der
+Wrote paypal.com.informationmail.me -> /tmp/certs/paypal/1494116090.paypal.com.informationmail.me.der
+Wrote www.paypal.com-signinto.limited -> /tmp/certs/paypal/1494116120.www.paypal.com-signinto.limited.der
+Wrote www.paypal.co.manager-help.com -> /tmp/certs/paypal/1494116123.www.paypal.co.manager-help.com.der
+Wrote paypal.com.resolution.limited -> /tmp/certs/paypal/1494116180.paypal.com.resolution.limited.der
+Wrote paypal.com-signin.summary-account.ml -> /tmp/certs/paypal/1494116195.paypal.com-signin.summary-account.ml.der
+Wrote www.paypal.com.service-information.nut.cc -> /tmp/certs/paypal/1494116255.www.paypal.com.service-information.nut.cc.der
+Wrote paypal.com-accountsfraud.com -> /tmp/certs/paypal/1494116281.paypal.com-accountsfraud.com.der
+{% endhighlight %}
+
+								<p class="left-aligned">Library Usage</p>
+
+<p class="left-aligned smaller">We've written simple integrations for most popular/major languages out there. If you want to contribute more please visit <a href="https://github.com/CaliDog/CertStream">our Github and open a ticket!</a></p>
+
+{% highlight python %}
+import certstream
+import base64
+
+NEEDLE = "paypal"
+
+# Search for domains with a keyword in them and write the corresponding certificate to a file
+def certstream_callback(message):
+    if message['message_type'] == "certificate_update":
+       	all_domains = message['data']['leaf_cert']['all_domains']
+    	found = next((x for x in all_domains if NEEDLE in x), [])
+    	if found:
+    		cn = all_domains[0]
+    		filename = "/tmp/{}".format(cn)
+    		print("Found {} in cert for {}. Writing to {}.".format(NEEDLE, cn, filename))
+    		with open(filename, 'w') as f:
+    			f.write(base64.b64decode(message['data']['leaf_cert']['as_der']))
+
+certstream.listen_for_events(certstream_callback)
+{% endhighlight %}
+
+
+<h2>Data Structures</h2>
+<p class="left-aligned smaller">We send heartbeat messages to keep connections alive:</p>
+{% highlight json %}
+{
+  "message_type": "heartbeat",   
+  "timestamp": 1494117538.63217  
+}
+{% endhighlight %}
+
+<p class="left-aligned smaller">And we send certificate updates:</p>
+
+{% highlight json %}
+{
+    "message_type": "certificate_update",
+    "data": {
+        "type": "X509LogEntry",
+        "leaf_cert": {
+            "subject": {
+                "aggregated": "/OU=Domain Control Validated/OU=PositiveSSL Multi-Domain/CN=sni78222.cloudflaressl.com",
+                "C": null,
+                "ST": null,
+                "L": null,
+                "O": null,
+                "OU": "Domain Control Validated",
+                "CN": "sni78222.cloudflaressl.com"
+            },
+            "extensions": {
+                "authorityKeyIdentifier": "keyid:40:09:61:67:F0:BC:83:71:4F:DE:12:08:2C:6F:D4:D4:2B:76:3D:96\n",
+                "subjectKeyIdentifier": "44:2B:CE:5A:98:5D:CF:96:30:60:42:51:24:CB:D2:7E:8A:D0:30:F0",
+                "keyUsage": "Digital Signature",
+                "basicConstraints": "CA:FALSE",
+                "extendedKeyUsage": "TLS Web Server Authentication, TLS Web Client Authentication",
+                "certificatePolicies": "Policy: 1.3.6.1.4.1.6449.1.2.2.7\n  CPS: https://secure.comodo.com/CPS\nPolicy: 2.23.140.1.2.1\n",
+                "crlDistributionPoints": "\nFull Name:\n  URI:http://crl.comodoca4.com/COMODOECCDomainValidationSecureServerCA2.crl\n",
+                "authorityInfoAccess": "CA Issuers - URI:http://crt.comodoca4.com/COMODOECCDomainValidationSecureServerCA2.crt\nOCSP - URI:http://ocsp.comodoca4.com\n",
+                "subjectAltName": "DNS:sni78222.cloudflaressl.com, DNS:*.1telecom.nl, DNS:*.chernoezerkalo.ru, DNS:*.cinemareport.ru, ...snip"
+            },
+            "not_before": 1494028800.0,
+            "not_after": 1510531199.0,
+            "as_der": "MIIG...m5PA==",
+            "all_domains": [
+                "sni78222.cloudflaressl.com",
+                "*.1telecom.nl",
+                // ...SNIP...
+            ]
+        },
+        "chain": [
+            {
+                "subject": {
+                    "aggregated": "/C=GB/ST=Greater Manchester/L=Salford/O=COMODO CA Limited/CN=COMODO ECC Domain Validation Secure Server CA 2",
+                    "C": "GB",
+                    "ST": "Greater Manchester",
+                    "L": "Salford",
+                    "O": "COMODO CA Limited",
+                    "OU": null,
+                    "CN": "COMODO ECC Domain Validation Secure Server CA 2"
+                },
+                "extensions": {
+                    "authorityKeyIdentifier": "keyid:75:71:A7:19:48:19:BC:9D:9D:EA:41:47:DF:94:C4:48:77:99:D3:79\n",
+                    "subjectKeyIdentifier": "40:09:61:67:F0:BC:83:71:4F:DE:12:08:2C:6F:D4:D4:2B:76:3D:96",
+                    "keyUsage": "Digital Signature, Certificate Sign, CRL Sign",
+                    "basicConstraints": "CA:TRUE, pathlen:0",
+                    "extendedKeyUsage": "TLS Web Server Authentication, TLS Web Client Authentication",
+                    "certificatePolicies": "Policy: X509v3 Any Policy\nPolicy: 2.23.140.1.2.1\n",
+                    "crlDistributionPoints": "\nFull Name:\n  URI:http://crl.comodoca.com/COMODOECCCertificationAuthority.crl\n",
+                    "authorityInfoAccess": "CA Issuers - URI:http://crt.comodoca.com/COMODOECCAddTrustCA.crt\nOCSP - URI:http://ocsp.comodoca4.com\n"
+                },
+                "not_before": 1411603200.0,
+                "not_after": 1884988799.0,
+                "as_der": "MIID...Ug=="
+            },
+            {
+                "subject": {
+                    "aggregated": "/C=GB/ST=Greater Manchester/L=Salford/O=COMODO CA Limited/CN=COMODO ECC Certification Authority",
+                    "C": "GB",
+                    "ST": "Greater Manchester",
+                    "L": "Salford",
+                    "O": "COMODO CA Limited",
+                    "OU": null,
+                    "CN": "COMODO ECC Certification Authority"
+                },
+                "extensions": {
+                    "subjectKeyIdentifier": "75:71:A7:19:48:19:BC:9D:9D:EA:41:47:DF:94:C4:48:77:99:D3:79",
+                    "keyUsage": "Certificate Sign, CRL Sign",
+                    "basicConstraints": "CA:TRUE"
+                },
+                "not_before": 1204761600.0,
+                "not_after": 2147471999.0,
+                "as_der": "MIIC...SOdY="
+            }
+        ],
+        "source": {
+            "url": "ct.googleapis.com/skydiver",
+            "name": "Google 'Skydiver' log"
+        }
+    }
+}
+
+{% endhighlight %}
+
+
+							</header>
+							<!-- <ul class="icons major">
+								<li><span class="icon fa-diamond major style1"><span class="label">Lorem</span></span></li>
+								<li><span class="icon fa-heart-o major style2"><span class="label">Ipsum</span></span></li>
+								<li><span class="icon fa-code major style3"><span class="label">Dolor</span></span></li>
+							</ul> -->
+						</div>
+					</section>
+
+	
+
+				<!-- CTA -->
+				<!-- 	<section id="cta" class="wrapper style4">
+						<div class="inner">
+							<header>
+								<h2>Arcue ut vel commodo</h2>
+								<p>Aliquam ut ex ut augue consectetur interdum endrerit imperdiet amet eleifend fringilla.</p>
+							</header>
+							<ul class="actions vertical">
+								<li><a href="#" class="button fit special">Activate</a></li>
+								<li><a href="#" class="button fit">Learn More</a></li>
+							</ul>
+						</div>
+					</section> -->
