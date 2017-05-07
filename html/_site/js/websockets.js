@@ -1,31 +1,5 @@
 var transitionEnd = 'webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend';
 var animationEnd = "animationend webkitAnimationEnd oAnimationEnd MSAnimationEnd";
-var randomDomains = [
-    "www.blaetterteig-genussanlass.ch (SAN: blaetterteig-genussanlass.ch)",
-    "whotf.org (SAN: www.whotf.org)",
-    "www.kkaydesigns.com (SAN: kkaydesigns.com)",
-    "suresteviajes.com (SAN: www.suresteviajes.com)",
-    "www.glasslineokano.com (SAN: glasslineokano.com)",
-    "u2u.com.br (SAN: autodiscover.u2u.com.br, cpanel.u2u.com.br, mail.u2u.com.br, webdisk.u2u.com.br, webmail.u2u.com.br, www.u2u.com.br)",
-    "www.ewige-gegenwart.com (SAN: ewige-gegenwart.com)",
-    "www.devotionextendeddayprogram.com (SAN: devotionextendeddayprogram.com)",
-    "www.hifilounge.ch (SAN: hifilounge.ch)",
-    "www.derwegderbotschaft.de (SAN: derwegderbotschaft.de)",
-    "asktherabbi.hu (SAN: www.asktherabbi.hu)",
-    "halaszbastya.hu (SAN: www.halaszbastya.hu)",
-    "ncyc2013.com (SAN: mail.ncyc2013.com, www.ncyc2013.com)",
-    "www.ok-tanakashouten.com (SAN: ok-tanakashouten.com)",
-    "www.mueller-die-frisoere.de (SAN: mueller-die-frisoere.de)",
-    "www.homeopatiatexcoco.com.mx (SAN: homeopatiatexcoco.com.mx)",
-    "www.npareja2.com (SAN: npareja2.com)",
-    "www.rocodoll.biz (SAN: rocodoll.biz)",
-    "www.carosfutterkiste.de (SAN: carosfutterkiste.de)",
-    "www.how.2u.do (SAN: how.2u.do)",
-    "www.davejfb.nl (SAN: davejfb.nl, davesspacecave.nl, www.davesspacecave.nl)",
-    "segitohaz.hu (SAN: www.segitohaz.hu)",
-    "applnstyle.com (SAN: autodiscover.applnstyle.com, cpanel.applnstyle.com, mail.applnstyle.com, webdisk.applnstyle.com, webmail.applnstyle.com, www.applnstyle.com)",
-    "marinelifecoins.kaiser-kaplaner.net (SAN: www.marinelifecoins.kaiser-kaplaner.net)",
-]
 
 function shuffle(array) {
   var currentIndex = array.length, temporaryValue, randomIndex;
@@ -60,6 +34,8 @@ var socket = new ReconnectingWebSocket(URL, null, OPTIONS);
 
 var messages = [];
 
+window.all_timers = [];
+
 $('.certstream-connect-button a.button').click(function(){
     $(this).attr("disabled","disabled")
     $(this).off()
@@ -69,23 +45,31 @@ $('.certstream-connect-button a.button').click(function(){
         $('.websocket-indicator').removeClass().addClass('websocket-indicator connected')
         $('.intro-info').html("Connection established! Waiting for events...")
         timer = setTimeout(function(){
-            $('.intro-info').html("Connection established! Waiting for events... <br><b>Note:</b> CTLs usually flush in batches, so please be patient!")
-        }, 5000)
+            if (!window.certstream_latest){return;}
+
+            var certstream_messages = window.certstream_latest.messages;
+
+            for(var i=0;i<certstream_messages.length;i++){
+                var messageTimer = setTimeout(function(index) {    
+                  processMessage({"data": JSON.stringify(certstream_messages[index])});
+                }, i * getRandom(0, 2500), i); 
+                window.all_timers.push(messageTimer);
+            }
+
+        }, 3000)
     }) 
     socket.open();
     setInterval(function(){
         if (messages.length != 0){
             clearTimeout(timer);
+            for (var i=0; i<window.all_timers;i++){
+                clearTimeout(window.all_timers[i])
+            }
             var message = messages.shift();
             var domains = message.data.leaf_cert.all_domains
             var cn = domains.shift()
             
-            var htmlMessage = "[" + moment().format("MM/DD/YY HH:mm:ss") + "] " + cn 
-            if (domains.length != 0){
-                htmlMessage += " (SAN: " + domains.join(', ') + ")";
-            }
-
-            
+            var htmlMessage = formatTimeForEvent(message, cn)
 
             if($('.output-demo p').length >= 10){
                 $('.output-demo p').eq(9).remove()
@@ -99,6 +83,18 @@ $('.certstream-connect-button a.button').click(function(){
     }, 100)
 })
 
+$.getJSON("/latest.json", function( data ) {
+  window.certstream_latest = data
+});
+
+function formatTimeForEvent(event, cn){
+    var message = "[" + moment.unix(event.data.seen).format("MM/DD/YY HH:mm:ss") + "] " + cn 
+    var domains = event.data.leaf_cert.all_domains
+    if (domains.length != 0){
+        message += " (SAN: " + domains.join(', ') + ")";
+    }
+    return message
+}
 
 function processMessage(event) {
     var message = JSON.parse(event.data);
@@ -112,11 +108,11 @@ function processMessage(event) {
 // Listen for messages
 socket.addEventListener('message', processMessage);
 
-shuffle(randomDomains)
-for (var i=0; i<5;i++){
-    var domainLine = randomDomains[i];
-    var htmlMessage = "[" + moment().subtract(5-i * 1.05, 'minutes').subtract(getRandom(0, 60), 'seconds').format("MM/DD/YY HH:mm:ss") + "] " + domainLine
-    $('.output-cli').prepend($("<p class='marginless'></p>").text(htmlMessage));
-}
+// shuffle(randomDomains)
+// for (var i=0; i<5;i++){
+//     var domainLine = randomDomains[i];
+//     var htmlMessage = "[" + moment.unix().format("MM/DD/YY HH:mm:ss") + "] " + domainLine
+//     $('.output-cli').prepend($("<p class='marginless'></p>").text(htmlMessage));
+// }
 
 
