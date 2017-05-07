@@ -6,6 +6,8 @@ import math
 import sys
 
 import datetime
+from collections import deque
+
 import requests
 import base64
 import os
@@ -14,7 +16,6 @@ import time
 import uvloop
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
-import websockets
 import aiohttp
 from aiohttp import web
 
@@ -64,11 +65,35 @@ class TransparencyWatcher():
         self.loop = loop
         self.stopped = False
 
+        self.recently_seen = deque(maxlen=25)
+
         app.router.add_get('/', self.websocket_handler)
+        app.router.add_get("/latest.json", self.recently_seen_handler)
+        app.router.add_get("/example.json", self.example_message)
 
         self.queues = []
         logging.info("Initializing the watcher")
         logging.info("Websockets listening on port {}".format(int(os.environ.get('PORT', 8765))))
+
+    async def recently_seen_handler(self, request):
+        return web.Response(
+            body=json.dumps(
+                {
+                    "messages": list(self.recently_seen)
+                },
+                indent=4
+            ),
+            content_type="application/json",
+            headers={
+                "Access-Control-Allow-Origin": "*"
+            }
+        )
+
+    async def example_message(self, request):
+        return web.Response(
+            body=json.dumps(list(self.recently_seen)[0], indent=4),
+            content_type="application/json"
+        )
 
     async def websocket_handler(self, request):
 
@@ -233,7 +258,9 @@ class TransparencyWatcher():
 
                             cert_data.update({
                                 "leaf_cert": self._dump_cert(chain[0]),
-                                "chain": [self._dump_cert(x) for x in chain[1:]]
+                                "chain": [self._dump_cert(x) for x in chain[1:]],
+                                "cert_index": entry['index'],
+                                "seen": time.time()
                             })
 
                             self._add_all_domains(cert_data)
@@ -284,6 +311,9 @@ class TransparencyWatcher():
                     if 'error_message' in certificates:
                         print("error!")
 
+                    for index, cert in zip(range(start,end), certificates['entries']):
+                        cert['index'] = index
+
                     yield certificates['entries']
 
                 start += self.MAX_BLOCK_SIZE
@@ -291,13 +321,15 @@ class TransparencyWatcher():
                 end = start + self.MAX_BLOCK_SIZE + 1
 
     async def push_new_message_to_clients(self, cert_data):
+        data_packet = {
+            "message_type": "certificate_update",
+            "data": cert_data
+        }
+        self.recently_seen.append(data_packet)
         for queue in self.queues:
-            await queue.put({
-                "message_type": "certificate_update",
-                "data": cert_data
-            })
+            await queue.put(data_packet)
 
-logging.basicConfig(format='[%(levelname)s:%(name)s] %(asctime)s - %(message)s', level=logging.DEBUG)
+logging.basicConfig(format='[%(levelname)s:%(name)s] %(asctime)s - %(message)s', level=logging.INFO)
 logging.info("Starting...")
 
 loop = asyncio.get_event_loop()
