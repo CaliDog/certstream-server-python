@@ -2,12 +2,12 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>CertStream</title>
-    <description>Real-time global SSL certificate authority stream.&lt;br&gt;Monitor SSL certs being issued.&lt;br&gt;&lt;br&gt;Now in Beta.
+    <description>Real-time global SSL certificate authority stream.&lt;br&gt;See SSL certs as they're issued.&lt;br&gt;&lt;br&gt;Now in Beta.
 </description>
     <link>http://certstream.calidog.comhttps://storage.googleapis.com/certstream-assets/</link>
     <atom:link href="http://certstream.calidog.comhttps://storage.googleapis.com/certstream-assets/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Sun, 07 May 2017 02:31:38 -0700</pubDate>
-    <lastBuildDate>Sun, 07 May 2017 02:31:38 -0700</lastBuildDate>
+    <pubDate>Sun, 07 May 2017 02:33:01 -0700</pubDate>
+    <lastBuildDate>Sun, 07 May 2017 02:33:01 -0700</lastBuildDate>
     <generator>Jekyll v3.4.3</generator>
     
   </channel>
