@@ -329,7 +329,7 @@ class TransparencyWatcher():
         for queue in self.queues:
             await queue.put(data_packet)
 
-logging.basicConfig(format='[%(levelname)s:%(name)s] %(asctime)s - %(message)s', level=logging.INFO)
+logging.basicConfig(format='[%(levelname)s:%(name)s] %(asctime)s - %(message)s', level=logging.DEBUG)
 logging.info("Starting...")
 
 loop = asyncio.get_event_loop()
