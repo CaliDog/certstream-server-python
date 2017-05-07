@@ -67,9 +67,7 @@ $('.certstream-connect-button a.button').click(function(){
             }
             var message = messages.shift();
             var domains = message.data.leaf_cert.all_domains
-            var cn = domains.shift()
-            
-            var htmlMessage = formatTimeForEvent(message, cn)
+            var htmlMessage = formatTimeForEvent(message)
 
             if($('.output-demo p').length >= 10){
                 $('.output-demo p').eq(9).remove()
@@ -83,15 +81,22 @@ $('.certstream-connect-button a.button').click(function(){
     }, 100)
 })
 
+//$.getJSON("/latest.json", function( data ) {
 $.getJSON("/latest.json", function( data ) {
   window.certstream_latest = data
+  for(var i=0;i<Math.min(5, window.certstream_latest.messages.length);i++){
+
+    $('.output-cli').prepend($("<p class='marginless'></p>").text(formatTimeForEvent(window.certstream_latest.messages[i])));
+  }
 });
 
-function formatTimeForEvent(event, cn){
-    var message = "[" + moment.unix(event.data.seen).format("MM/DD/YY HH:mm:ss") + "] " + cn 
+function formatTimeForEvent(event){
     var domains = event.data.leaf_cert.all_domains
+    var cn = domains[0]
+
+    var message = "[" + moment.unix(event.data.seen).format("MM/DD/YY HH:mm:ss") + "] " + cn 
     if (domains.length != 0){
-        message += " (SAN: " + domains.join(', ') + ")";
+        message += " (SAN: " + domains.slice(1).join(', ') + ")";
     }
     return message
 }
@@ -107,12 +112,5 @@ function processMessage(event) {
 
 // Listen for messages
 socket.addEventListener('message', processMessage);
-
-// shuffle(randomDomains)
-// for (var i=0; i<5;i++){
-//     var domainLine = randomDomains[i];
-//     var htmlMessage = "[" + moment.unix().format("MM/DD/YY HH:mm:ss") + "] " + domainLine
-//     $('.output-cli').prepend($("<p class='marginless'></p>").text(htmlMessage));
-// }
 
 

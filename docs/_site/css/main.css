@@ -1116,7 +1116,7 @@ body {
   text-align: left; }
 
 .smaller {
-  font-size: .8rem;
+  font-size: 1rem;
   font-weight: 300; }
 
 code.language-json span.nt {
@@ -1140,7 +1140,7 @@ code:last-of-type {
   position: absolute;
   right: 0;
   top: 0;
-  background: rgba(39, 174, 96, 0.9); }
+  background: #27ae60; }
 
 .websocket-indicator {
   animation-duration: 3s;
@@ -2024,7 +2024,7 @@ button,
     padding: 0; }
   .wrapper.style1 {
     background-color: #27ae60;
-    color: #c9ebd7; }
+    color: #ecf0f1; }
     .wrapper.style1 strong, .wrapper.style1 b {
       color: #ffffff; }
     .wrapper.style1 h2, .wrapper.style1 h3, .wrapper.style1 h4, .wrapper.style1 h5, .wrapper.style1 h6 {
@@ -2040,7 +2040,7 @@ button,
     .wrapper.style1 header.major h2, .wrapper.style1 header.major h3, .wrapper.style1 header.major h4, .wrapper.style1 header.major h5, .wrapper.style1 header.major h6 {
       border-color: rgba(0, 0, 0, 0.125); }
     .wrapper.style1 header.major p {
-      color: #c9ebd7; }
+      color: #ecf0f1; }
     .wrapper.style1 label {
       color: #ffffff; }
     .wrapper.style1 input[type="text"],
@@ -2053,7 +2053,7 @@ button,
       color: rgba(0, 0, 0, 0.125); }
     .wrapper.style1 input[type="checkbox"] + label,
     .wrapper.style1 input[type="radio"] + label {
-      color: #c9ebd7; }
+      color: #ecf0f1; }
       .wrapper.style1 input[type="checkbox"] + label:before,
       .wrapper.style1 input[type="radio"] + label:before {
         background: rgba(255, 255, 255, 0.075); }
