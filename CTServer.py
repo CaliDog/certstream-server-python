@@ -1,4 +1,5 @@
 import asyncio
+
 import logging
 import json
 
@@ -57,6 +58,19 @@ class TransparencyWatcher():
         'ctserver.cnnic.cn',
         'log.certly.io',
         'ctlog.wosign.com',
+        "ct1.digicert-ct.com/log",
+        "log.certly.io",
+        "ct.izenpe.com",
+        "ct.ws.symantec.com",
+        "ct.wosign.com",
+        "vega.ws.symantec.com",
+        "ctserver.cnnic.cn",
+        "ct.gdca.com.cn",
+        "ct.izenpe.eus",
+        "ctlog.gdca.com.cn",
+        "www.certificatetransparency.cn/ct/",
+        "https://ctlog-gen2.api.venafi.com/",
+        "sirius.ws.symantec.com",
     ]
 
     MAX_BLOCK_SIZE = 64
@@ -148,7 +162,12 @@ class TransparencyWatcher():
                       if operator['url'] not in self.BAD_CT_SERVERS]
         coroutines.append(self.ws_heartbeats())
 
-        await asyncio.gather(*coroutines)
+        future = asyncio.gather(*coroutines)
+        try:
+            await future
+        except Exception as e:
+            print(e)
+            sys.exit(1)
 
     def stop(self, loop):
         logging.info('Got stop order, exiting...')
@@ -213,75 +232,83 @@ class TransparencyWatcher():
         return cert_data
 
     async def watch_for_updates_task(self, operator_information):
-        latest_size = 0
-        name = operator_information['description']
-        while not self.stopped:
-            try:
-                async with aiohttp.ClientSession(loop=self.loop) as session:
-                    async with session.get("http://{}/ct/v1/get-sth".format(operator_information['url'])) as response:
-                        info = await response.json()
-            except aiohttp.ClientError as e:
-                logging.info('[{}] Exception -> {}'.format(name, e))
-                await asyncio.sleep(5)
-                continue
-
-            tree_size = info.get('tree_size')
-
-            if latest_size == 0:
-                latest_size = tree_size
-
-            if latest_size < tree_size:
-                logging.info('[{}] [{} -> {}] New certs found, updating!'.format(name, latest_size, tree_size))
-
+        try:
+            latest_size = 0
+            name = operator_information['description']
+            while not self.stopped:
                 try:
-                    async for result_chunk in self.get_new_results(operator_information, latest_size, tree_size):
-                        for entry in result_chunk:
-                            mtl = MerkleTreeHeader.parse(base64.b64decode(entry['leaf_input']))
-
-                            cert_data = {}
-
-                            if mtl.LogEntryType == "X509LogEntryType":
-                                cert_data['type'] = "X509LogEntry"
-                                chain = [crypto.load_certificate(crypto.FILETYPE_ASN1, Certificate.parse(mtl.Entry).CertData)]
-                                extra_data = CertificateChain.parse(base64.b64decode(entry['extra_data']))
-                                for cert in extra_data.Chain:
-                                    chain.append(crypto.load_certificate(crypto.FILETYPE_ASN1, cert.CertData))
-                            else:
-                                cert_data['type'] = "PreCertEntry"
-                                extra_data = PreCertEntry.parse(base64.b64decode(entry['extra_data']))
-                                chain = [crypto.load_certificate(crypto.FILETYPE_ASN1, extra_data.LeafCert.CertData)]
-
-                                for cert in extra_data.Chain:
-                                    chain.append(
-                                        crypto.load_certificate(crypto.FILETYPE_ASN1, cert.CertData)
-                                    )
-
-                            cert_data.update({
-                                "leaf_cert": self._dump_cert(chain[0]),
-                                "chain": [self._dump_cert(x) for x in chain[1:]],
-                                "cert_index": entry['index'],
-                                "seen": time.time()
-                            })
-
-                            self._add_all_domains(cert_data)
-
-                            cert_data['source'] = {
-                                "url": operator_information['url'],
-                                "name": operator_information['description']
-                            }
-
-                            await self.push_new_message_to_clients(cert_data)
-
+                    async with aiohttp.ClientSession(loop=self.loop) as session:
+                        async with session.get("http://{}/ct/v1/get-sth".format(operator_information['url'])) as response:
+                            info = await response.json()
                 except aiohttp.ClientError as e:
                     logging.info('[{}] Exception -> {}'.format(name, e))
                     await asyncio.sleep(5)
                     continue
 
-                latest_size = tree_size
-            else:
-                logging.debug('[{}][{}|{}] No update needed, continuing...'.format(name, latest_size, tree_size))
+                tree_size = info.get('tree_size')
 
-            await asyncio.sleep(5)
+                if latest_size == 0:
+                    latest_size = tree_size
+
+                if latest_size < tree_size:
+                    logging.info('[{}] [{} -> {}] New certs found, updating!'.format(name, latest_size, tree_size))
+
+                    try:
+                        async for result_chunk in self.get_new_results(operator_information, latest_size, tree_size):
+                            for entry in result_chunk:
+                                mtl = MerkleTreeHeader.parse(base64.b64decode(entry['leaf_input']))
+
+                                cert_data = {}
+
+                                if mtl.LogEntryType == "X509LogEntryType":
+                                    cert_data['type'] = "X509LogEntry"
+                                    chain = [crypto.load_certificate(crypto.FILETYPE_ASN1, Certificate.parse(mtl.Entry).CertData)]
+                                    extra_data = CertificateChain.parse(base64.b64decode(entry['extra_data']))
+                                    for cert in extra_data.Chain:
+                                        chain.append(crypto.load_certificate(crypto.FILETYPE_ASN1, cert.CertData))
+                                else:
+                                    cert_data['type'] = "PreCertEntry"
+                                    extra_data = PreCertEntry.parse(base64.b64decode(entry['extra_data']))
+                                    chain = [crypto.load_certificate(crypto.FILETYPE_ASN1, extra_data.LeafCert.CertData)]
+
+                                    for cert in extra_data.Chain:
+                                        chain.append(
+                                            crypto.load_certificate(crypto.FILETYPE_ASN1, cert.CertData)
+                                        )
+
+                                cert_data.update({
+                                    "leaf_cert": self._dump_cert(chain[0]),
+                                    "chain": [self._dump_cert(x) for x in chain[1:]],
+                                    "cert_index": entry['index'],
+                                    "seen": time.time()
+                                })
+
+                                self._add_all_domains(cert_data)
+
+                                cert_data['source'] = {
+                                    "url": operator_information['url'],
+                                    "name": operator_information['description']
+                                }
+
+                                await self.push_new_message_to_clients(cert_data)
+
+                    except aiohttp.ClientError as e:
+                        logging.info('[{}] Exception -> {}'.format(name, e))
+                        await asyncio.sleep(5)
+                        continue
+
+                    except Exception as e:
+                        print(e)
+                        sys.exit(1)
+
+                    latest_size = tree_size
+                else:
+                    logging.debug('[{}][{}|{}] No update needed, continuing...'.format(name, latest_size, tree_size))
+
+                await asyncio.sleep(5)
+        except Exception as e:
+            print(e)
+            sys.exit(1)
 
     async def get_new_results(self, operator_information, latest_size, tree_size):
         # The top of the tree isn't actually a cert yet, so the total_size is what we're aiming for
@@ -311,7 +338,7 @@ class TransparencyWatcher():
                     if 'error_message' in certificates:
                         print("error!")
 
-                    for index, cert in zip(range(start,end), certificates['entries']):
+                    for index, cert in zip(range(start,end+1), certificates['entries']):
                         cert['index'] = index
 
                     yield certificates['entries']
@@ -333,6 +360,7 @@ logging.basicConfig(format='[%(levelname)s:%(name)s] %(asctime)s - %(message)s',
 logging.info("Starting...")
 
 loop = asyncio.get_event_loop()
+loop.set_debug(False)
 
 app = web.Application(loop=loop)
 
