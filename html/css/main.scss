@@ -8,7 +8,9 @@ $baseurl: '{{ site.baseurl }}/images';
 @import 'libs/functions';
 @import 'libs/mixins';
 @import 'font-awesome.min.css';
-@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,400italic,600,600italic,800,800italic');
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,600');
+@import url('https://fonts.googleapis.com/css?family=Droid+Sans+Mono');
+
 
 /*
 	Spectral by HTML5 UP
@@ -95,11 +97,13 @@ code:last-of-type{
 
 .wsi-holder{
     width: 5.7em;
-    height: 3em;
+    height: 2.5em;
+    display: inline;
     position: absolute;
-    right: 3px;
-    top: 0;
-    background: rgba(0, 0, 0, 0.19);
+}
+
+.logo{
+	max-width: 300px;
 }
 
 .websocket-indicator{
@@ -108,7 +112,7 @@ code:last-of-type{
     height: .8em;
     width: .8em;
     position: absolute;
-    top: .875em;
+    top: .575em;
     right: 2.5em;
     border-radius: 10px;
     
@@ -128,8 +132,8 @@ code:last-of-type{
     &.disconnected{
 		animation-name: redGlow;
 		&::after{
-	    	content: "OFFLINE";
-	    	left: -1.6em;
+	    	content: "DISCONNECTED";
+	    	left: -3.7em;
 		}
     }
     &::after{
@@ -141,6 +145,9 @@ code:last-of-type{
     }
 }
 
+.wrapper.style1 header.major:not(:first-child) h2{
+	margin: 1.5em
+}
 
 
 figure.highlight{
@@ -1949,3 +1956,28 @@ figure.highlight{
 			}
 		}
 	}
+
+
+
+.json-formatter-light.json-formatter-row a{
+	color: #b2e0eb;
+}
+.json-formatter-light.json-formatter-row .json-formatter-bracket{
+	color: #b2e0eb;	
+}
+
+.json-formatter-light.json-formatter-row .json-formatter-key{
+    color: #cfd9db;
+}
+
+.json-formatter-light.json-formatter-row .json-formatter-string{
+	color: #def8ff;
+}
+
+.json-formatter-light.json-formatter-row a:hover{
+	color: #242e31
+}
+
+.json-formatter-light.json-formatter-row .json-formatter-number, .json-formatter-light.json-formatter-row .json-formatter-null{
+	color: #3d4e53
+}

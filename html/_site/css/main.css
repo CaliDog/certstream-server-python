@@ -1,5 +1,6 @@
 @import url(font-awesome.min.css);
-@import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,400italic,600,600italic,800,800italic");
+@import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,600");
+@import url("https://fonts.googleapis.com/css?family=Droid+Sans+Mono");
 /*
 	Spectral by HTML5 UP
 	html5up.net | @n33co
@@ -1136,11 +1137,12 @@ code:last-of-type {
 
 .wsi-holder {
   width: 5.7em;
-  height: 3em;
-  position: absolute;
-  right: 3px;
-  top: 0;
-  background: rgba(0, 0, 0, 0.19); }
+  height: 2.5em;
+  display: inline;
+  position: absolute; }
+
+.logo {
+  max-width: 300px; }
 
 .websocket-indicator {
   animation-duration: 3s;
@@ -1148,7 +1150,7 @@ code:last-of-type {
   height: .8em;
   width: .8em;
   position: absolute;
-  top: .875em;
+  top: .575em;
   right: 2.5em;
   border-radius: 10px; }
   .websocket-indicator.connected {
@@ -1163,14 +1165,17 @@ code:last-of-type {
   .websocket-indicator.disconnected {
     animation-name: redGlow; }
     .websocket-indicator.disconnected::after {
-      content: "OFFLINE";
-      left: -1.6em; }
+      content: "DISCONNECTED";
+      left: -3.7em; }
   .websocket-indicator::after {
     font-weight: 600;
     font-size: 0.45em;
     position: absolute;
     bottom: -2.7em;
     left: -3em; }
+
+.wrapper.style1 header.major:not(:first-child) h2 {
+  margin: 1.5em; }
 
 figure.highlight {
   position: relative; }
@@ -1296,7 +1301,7 @@ blockquote {
 code {
   background: rgba(144, 144, 144, 0.25);
   border-radius: 3px;
-  font-family: "Courier New", monospace;
+  font-family: "Droid Sans Mono", monospace;
   font-size: 0.9em;
   letter-spacing: 0;
   margin: 0 0.25em;
@@ -1304,7 +1309,7 @@ code {
 
 pre {
   -webkit-overflow-scrolling: touch;
-  font-family: "Courier New", monospace;
+  font-family: "Droid Sans Mono", monospace;
   font-size: 0.9em;
   margin: 0 0 2em 0; }
   pre code {
@@ -2776,3 +2781,21 @@ body.is-mobile.landing .wrapper.style4 {
   background-size: cover; }
 body.is-mobile.landing #footer {
   background-color: #1e2a36; }
+
+.json-formatter-light.json-formatter-row a {
+  color: #b2e0eb; }
+
+.json-formatter-light.json-formatter-row .json-formatter-bracket {
+  color: #b2e0eb; }
+
+.json-formatter-light.json-formatter-row .json-formatter-key {
+  color: #cfd9db; }
+
+.json-formatter-light.json-formatter-row .json-formatter-string {
+  color: #def8ff; }
+
+.json-formatter-light.json-formatter-row a:hover {
+  color: #242e31; }
+
+.json-formatter-light.json-formatter-row .json-formatter-number, .json-formatter-light.json-formatter-row .json-formatter-null {
+  color: #3d4e53; }

@@ -113,4 +113,12 @@ function processMessage(event) {
 // Listen for messages
 socket.addEventListener('message', processMessage);
 
+$.getJSON('/example.json', function(responseJSON){
+    var formatter = new JSONFormatter(responseJSON, 4, {
+        hoverPreviewEnabled: true,
+        theme: 'light'
+
+    })
+    $('#json-parsed').append(formatter.render())
+})
 
