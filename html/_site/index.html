@@ -107,46 +107,35 @@ Wrote paypal.com-signin.summary-account.ml -&gt; /tmp/certs/paypal/1494116195.pa
 Wrote www.paypal.com.service-information.nut.cc -&gt; /tmp/certs/paypal/1494116255.www.paypal.com.service-information.nut.cc.der
 Wrote paypal.com-accountsfraud.com -&gt; /tmp/certs/paypal/1494116281.paypal.com-accountsfraud.com.der</code></pre></figure>
 
-      <p class="left-aligned">Library Usage</p>
+      <p class="left-aligned">Library Examples</p>
 
-      <p class="left-aligned smaller">We've written simple integrations for most popular/major languages out there. If you want to contribute more please visit <a href="https://github.com/CaliDog/CertStream">our Github and open a ticket!</a></p>
+      <p class="left-aligned smaller">
+        Right now we only support python, but we're also looking for other people to help maintian official clients in any language! If you want to contribute more please visit <a href="https://github.com/CaliDog/CertStream">our Github and open a ticket!</a></p>
 
-<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">certstream</span>
-<span class="kn">import</span> <span class="nn">base64</span>
+      <p class="left-aligned smaller">Looking for a keyword in the stream and dumping it to a local file:</p>
 
-<span class="n">NEEDLE</span> <span class="o">=</span> <span class="s">"paypal"</span>
+    <script src="https://gist.github.com/Fitblip/924777595f21f04cf158f7a34f7ac358.js"></script>
 
-<span class="c"># Search for domains with a keyword in them and write the corresponding certificate to a file</span>
-<span class="k">def</span> <span class="nf">certstream_callback</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
-<span class="k">if</span> <span class="n">message</span><span class="p">[</span><span class="s">'message_type'</span><span class="p">]</span> <span class="o">==</span> <span class="s">"certificate_update"</span><span class="p">:</span>
-<span class="n">all_domains</span> <span class="o">=</span> <span class="n">message</span><span class="p">[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'leaf_cert'</span><span class="p">][</span><span class="s">'all_domains'</span><span class="p">]</span>
-<span class="n">found</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">all_domains</span> <span class="k">if</span> <span class="n">NEEDLE</span> <span class="ow">in</span> <span class="n">x</span><span class="p">),</span> <span class="p">[])</span>
-<span class="k">if</span> <span class="n">found</span><span class="p">:</span>
-<span class="n">cn</span> <span class="o">=</span> <span class="n">all_domains</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">filename</span> <span class="o">=</span> <span class="s">"/tmp/{}"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cn</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="s">"Found {} in cert for {}. Writing to {}."</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">NEEDLE</span><span class="p">,</span> <span class="n">cn</span><span class="p">,</span> <span class="n">filename</span><span class="p">))</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-<span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">base64</span><span class="o">.</span><span class="n">b64decode</span><span class="p">(</span><span class="n">message</span><span class="p">[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'leaf_cert'</span><span class="p">][</span><span class="s">'as_der'</span><span class="p">]))</span>
+      <p class="left-aligned smaller">Looking for a keyword and posting to slack</p>
 
-<span class="n">certstream</span><span class="o">.</span><span class="n">listen_for_events</span><span class="p">(</span><span class="n">certstream_callback</span><span class="p">)</span></code></pre></figure>
+    <script src="https://gist.github.com/Fitblip/003a5b4b68d5c70661751a099a87734a.js"></script>
 
     </header>
     <header class="major">
 
-      <h2>Data Structures</h2>
-      <p class="left-aligned smaller">We send heartbeat messages to keep connections alive:</p>
+      <h2>Simple(ish) Structures</h2>
+      <p class="left-aligned smaller">Heartbeat Messages:</p>
 <figure class="highlight"><pre><code class="language-json" data-lang="json"><span class="p">{</span><span class="w">
     </span><span class="nt">"message_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"heartbeat"</span><span class="p">,</span><span class="w">
     </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="mf">1494117538.63217</span><span class="w">
 </span><span class="p">}</span></code></pre></figure>
 
-      <p class="left-aligned smaller">And we send certificate updates:</p>
-
-<figure class="highlight">
-    <pre><code id="json-parsed" class="language-json" data-lang="json"></code></pre>
-</figure>
+      <p class="left-aligned smaller">Certificate Updates (live example <a target="_blank" href="/example.json">here</a>): </p>
 
 
+    <figure class="highlight">
+        <pre><code id="json-parsed" class="language-json" data-lang="json"></code></pre>
+    </figure>
     </header>
   </div>
 </section>

@@ -72,36 +72,24 @@ Wrote www.paypal.com.service-information.nut.cc -> /tmp/certs/paypal/1494116255.
 Wrote paypal.com-accountsfraud.com -> /tmp/certs/paypal/1494116281.paypal.com-accountsfraud.com.der
 {% endhighlight %}
 
-      <p class="left-aligned">Library Usage</p>
+      <p class="left-aligned">Library Examples</p>
 
-      <p class="left-aligned smaller">We've written simple integrations for most popular/major languages out there. If you want to contribute more please visit <a href="https://github.com/CaliDog/CertStream">our Github and open a ticket!</a></p>
+      <p class="left-aligned smaller">
+        Right now we only support python, but we're also looking for other people to help maintian official clients in any language! If you want to contribute more please visit <a href="https://github.com/CaliDog/CertStream">our Github and open a ticket!</a></p>
 
-{% highlight python %}
-import certstream
-import base64
+      <p class="left-aligned smaller">Looking for a keyword in the stream and dumping it to a local file:</p>
 
-NEEDLE = "paypal"
+    <script src="https://gist.github.com/Fitblip/924777595f21f04cf158f7a34f7ac358.js"></script>
 
-# Search for domains with a keyword in them and write the corresponding certificate to a file
-def certstream_callback(message):
-if message['message_type'] == "certificate_update":
-all_domains = message['data']['leaf_cert']['all_domains']
-found = next((x for x in all_domains if NEEDLE in x), [])
-if found:
-cn = all_domains[0]
-filename = "/tmp/{}".format(cn)
-print("Found {} in cert for {}. Writing to {}.".format(NEEDLE, cn, filename))
-with open(filename, 'w') as f:
-f.write(base64.b64decode(message['data']['leaf_cert']['as_der']))
+      <p class="left-aligned smaller">Looking for a keyword and posting to slack</p>
 
-certstream.listen_for_events(certstream_callback)
-{% endhighlight %}
+    <script src="https://gist.github.com/Fitblip/003a5b4b68d5c70661751a099a87734a.js"></script>
 
     </header>
     <header class="major">
 
-      <h2>Data Structures</h2>
-      <p class="left-aligned smaller">We send heartbeat messages to keep connections alive:</p>
+      <h2>Simple(ish) Structures</h2>
+      <p class="left-aligned smaller">Heartbeat Messages:</p>
 {% highlight json %}
 {
     "message_type": "heartbeat",
@@ -109,13 +97,12 @@ certstream.listen_for_events(certstream_callback)
 }
 {% endhighlight %}
 
-      <p class="left-aligned smaller">And we send certificate updates:</p>
-
-<figure class="highlight">
-    <pre><code id="json-parsed" class="language-json" data-lang="json"></code></pre>
-</figure>
+      <p class="left-aligned smaller">Certificate Updates (live example <a target="_blank" href="/example.json">here</a>): </p>
 
 
+    <figure class="highlight">
+        <pre><code id="json-parsed" class="language-json" data-lang="json"></code></pre>
+    </figure>
     </header>
   </div>
 </section>
