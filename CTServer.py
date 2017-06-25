@@ -84,10 +84,69 @@ class TransparencyWatcher():
         app.router.add_get('/', self.websocket_handler)
         app.router.add_get("/latest.json", self.recently_seen_handler)
         app.router.add_get("/example.json", self.example_message)
+        app.router.add_get("/{}".format(os.getenv("STATS_URL", 'stats')), self.stats)
 
         self.queues = []
         logging.info("Initializing the watcher")
         logging.info("Websockets listening on port {}".format(int(os.environ.get('PORT', 8765))))
+
+    def _pretty_date(self, time=False):
+        """
+        Get a datetime object or a int() Epoch timestamp and return a
+        pretty string like 'an hour ago', 'Yesterday', '3 months ago',
+        'just now', etc
+        """
+        from datetime import datetime
+        now = datetime.now()
+        if type(time) is int:
+            diff = now - datetime.fromtimestamp(time)
+        elif isinstance(time,datetime):
+            diff = now - time
+        elif not time:
+            diff = now - now
+        second_diff = diff.seconds
+        day_diff = diff.days
+
+        if day_diff < 0:
+            return ''
+
+        if day_diff == 0:
+            if second_diff < 10:
+                return "just now"
+            if second_diff < 60:
+                return str(second_diff) + " seconds ago"
+            if second_diff < 120:
+                return "a minute ago"
+            if second_diff < 3600:
+                return str(second_diff / 60) + " minutes ago"
+            if second_diff < 7200:
+                return "an hour ago"
+            if second_diff < 86400:
+                return str(second_diff / 3600) + " hours ago"
+        if day_diff == 1:
+            return "Yesterday"
+        if day_diff < 7:
+            return str(day_diff) + " days ago"
+        if day_diff < 31:
+            return str(day_diff / 7) + " weeks ago"
+        if day_diff < 365:
+            return str(day_diff / 30) + " months ago"
+        return str(day_diff / 365) + " years ago"
+
+    async def stats(self, request):
+        return web.Response(
+            body=json.dumps(
+                {
+                    "connected_client_count": len(self.queues),
+                    "clients": [(queue_info[0], self._pretty_date(queue_info[2])) for queue_info in self.queues]
+                },
+                indent=4
+            ),
+            content_type="application/json",
+            headers={
+                "Access-Control-Allow-Origin": "*"
+            }
+        )
 
     async def recently_seen_handler(self, request):
         return web.Response(
@@ -109,14 +168,30 @@ class TransparencyWatcher():
             content_type="application/json"
         )
 
-    async def websocket_handler(self, request):
+    def _get_ip(self, request):
+        peer_info = request.transport.get_extra_info('peername')
 
+        ip = "UNKNOWN"
+
+        if peer_info is not None:
+            ip, port = peer_info
+
+        if 'X-Forwarded-For' in request.headers:
+            ip = request.headers.get('X-Forwarded-For')
+
+        return ip
+
+
+    async def websocket_handler(self, request):
         if request.headers.get("Upgrade"):
             ws = web.WebSocketResponse()
             await ws.prepare(request)
 
             queue = asyncio.Queue()
-            self.queues.append(queue)
+            external_ip = self._get_ip(request)
+
+            queue_info = (external_ip, queue, int(time.time()))
+            self.queues.append(queue_info)
 
             try:
                 while True:
@@ -126,7 +201,7 @@ class TransparencyWatcher():
             except asyncio.CancelledError:
                 print('websocket cancelled')
             finally:
-                self.queues.remove(queue)
+                self.queues.remove(queue_info)
 
             await ws.close()
             return ws
@@ -139,7 +214,8 @@ class TransparencyWatcher():
             await asyncio.sleep(10)
             logging.debug("Sending ping...")
             timestamp = time.time()
-            for queue in self.queues:
+            for queue_info in self.queues:
+                external_ip, queue, connect_time = queue_info
                 await queue.put({
                     "message_type": "heartbeat",
                     "timestamp": timestamp
@@ -353,7 +429,8 @@ class TransparencyWatcher():
             "data": cert_data
         }
         self.recently_seen.append(data_packet)
-        for queue in self.queues:
+        for queue_info in self.queues:
+            external_ip, queue, connect_time = queue_info
             await queue.put(data_packet)
 
 logging.basicConfig(format='[%(levelname)s:%(name)s] %(asctime)s - %(message)s', level=logging.DEBUG)
