@@ -223,7 +223,7 @@ class TransparencyWatcher():
 
     def initialize_ts_lists(self):
         try:
-            self.transparency_lists = requests.get('https://www.certificate-transparency.org/known-logs/all_logs_list.json?attredirects=0').json()
+            self.transparency_lists = requests.get('https://www.gstatic.com/ct/log_list/log_list.json').json()
         except Exception as e:
             logging.fatal("Invalid response from certificate directory! Exiting :(")
             sys.exit(1)
