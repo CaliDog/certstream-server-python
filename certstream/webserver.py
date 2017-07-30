@@ -21,7 +21,7 @@ class WebServer(object):
         self.loop = _loop
         self.watcher = transparency_watcher
 
-        self.app = web.Application(loop=self.loop)
+        self.app = web.Application(loop=self.loop, middlewares=[self.redirect_ssl_if_needed,])
         self.static_resource = StaticResource('/', os.path.join(os.path.dirname(__file__), '../html/_site/'))
 
         self._add_routes()
@@ -41,6 +41,14 @@ class WebServer(object):
         self.app.router.add_get("/{}".format(self.stats_url), self.stats_handler)
         self.app.router.add_get('/', self.root_handler)
         self.app.router.add_static('/', os.path.join(os.path.dirname(__file__), '../html/_site/'))
+
+    async def redirect_ssl_if_needed(self, _, handler):
+        async def middleware_handler(request):
+            if not request.host.startswith('127.0.0.1') and request.scheme == 'http':
+                return web.HTTPFound(request.url.with_scheme('https'))
+            response = await handler(request)
+            return response
+        return middleware_handler
 
     async def mux_ctl_stream(self):
         while True:
