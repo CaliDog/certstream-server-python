@@ -4,10 +4,10 @@
     <title>CertStream</title>
     <description>Real-time global SSL certificate authority stream.&lt;br&gt;See SSL certs as they're issued.&lt;br&gt;&lt;br&gt;Now in Beta.
 </description>
-    <link>https://certstream.calidog.comhttps://storage.googleapis.com/certstream-assets/</link>
-    <atom:link href="https://certstream.calidog.comhttps://storage.googleapis.com/certstream-assets/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Fri, 23 Jun 2017 23:29:09 -0700</pubDate>
-    <lastBuildDate>Fri, 23 Jun 2017 23:29:09 -0700</lastBuildDate>
+    <link>https://certstream.calidog.com/</link>
+    <atom:link href="https://certstream.calidog.com/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Sun, 30 Jul 2017 05:22:09 -0700</pubDate>
+    <lastBuildDate>Sun, 30 Jul 2017 05:22:09 -0700</lastBuildDate>
     <generator>Jekyll v3.4.3</generator>
     
   </channel>

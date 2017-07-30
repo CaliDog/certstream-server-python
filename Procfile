@@ -1,1 +1,1 @@
-web: python CTServer.py
+web: python run_server.py
