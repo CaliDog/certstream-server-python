@@ -151,6 +151,10 @@ class TransparencyWatcher(object):
 
                 end = start + self.MAX_BLOCK_SIZE + 1
 
+class DummyTransparencyWatcher(object):
+    stream = asyncio.Queue()
+    def get_tasks(self):
+        return []
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
