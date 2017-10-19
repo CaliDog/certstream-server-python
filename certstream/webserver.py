@@ -10,10 +10,19 @@ from aiohttp.web_urldispatcher import StaticResource
 
 from certstream.util import pretty_date, get_ip
 
+WebsocketClientInfo = collections.namedtuple(
+    'WebsocketClientInfo',
+    ['external_ip', 'queue', 'connection_time', 'channel']
+)
 
 class WebServer(object):
     def __init__(self, _loop, transparency_watcher):
         self.active_sockets = []
+        self.valid_channels = [
+            'default',
+            'dns-only',
+            'leaf-only',
+        ]
         self.recently_seen = collections.deque(maxlen=25)
         self.stats_url = os.getenv("STATS_URL", 'stats')
         self.logger = logging.getLogger('certstream.webserver')
@@ -61,22 +70,28 @@ class WebServer(object):
 
             self.recently_seen.append(data_packet)
 
-            for external_ip, client_queue, connect_time in self.active_sockets:
-                await client_queue.put(cert_data)
+            for client in self.active_sockets:
+                await client.queue.put(data_packet)
 
     async def root_handler(self, request, filename=None):
         # If we have a websocket request
         if request.headers.get("Upgrade"):
+            requested_channel = request.GET.get('channel', 'default')
+
+            if requested_channel not in self.valid_channels:
+                raise web.HTTPBadRequest(text="Invalid channel!")
+
             ws = web.WebSocketResponse()
 
             await ws.prepare(request)
 
             client_queue = asyncio.Queue()
 
-            websocket_info = (
-                get_ip(request),
-                client_queue,
-                int(time.time())
+            websocket_info = WebsocketClientInfo(
+                external_ip=get_ip(request),
+                queue=client_queue,
+                connection_time=int(time.time()),
+                channel=requested_channel
             )
 
             self.active_sockets.append(websocket_info)
@@ -117,10 +132,20 @@ class WebServer(object):
             return web.Response(body="{}", content_type="application/json")
 
     async def stats_handler(self, _):
+        clients = {}
+        for client in self.active_sockets:
+            client_identifier = "{}-{}".format(client.external_ip, client.connection_time)
+            clients[client_identifier] = {
+                "ip_address": client.external_ip,
+                "conection_time": client.connection_time,
+                "connection_length": pretty_date(client.connection_time),
+                "channel": client.channel
+            }
+
         return web.Response(
             body=json.dumps({
                     "connected_client_count": len(self.active_sockets),
-                    "clients": [(websocket_info[0], pretty_date(websocket_info[2])) for websocket_info in self.active_sockets]
+                    "clients": clients
                 }, indent=4
             ),
             content_type="application/json",
@@ -132,8 +157,8 @@ class WebServer(object):
             await asyncio.sleep(10)
             self.logger.debug("Sending ping...")
             timestamp = time.time()
-            for external_ip, queue, connect_time in self.active_sockets:
-                await queue.put({
+            for client in self.active_sockets:
+                await client.queue.put({
                     "message_type": "heartbeat",
                     "timestamp": timestamp
                 })

@@ -100,13 +100,13 @@ def parse_ctl_entry(entry, operator_information):
     cert_data = {}
 
     if mtl.LogEntryType == "X509LogEntryType":
-        cert_data['type'] = "X509LogEntry"
+        cert_data['update_type'] = "X509LogEntry"
         chain = [crypto.load_certificate(crypto.FILETYPE_ASN1, Certificate.parse(mtl.Entry).CertData)]
         extra_data = CertificateChain.parse(base64.b64decode(entry['extra_data']))
         for cert in extra_data.Chain:
             chain.append(crypto.load_certificate(crypto.FILETYPE_ASN1, cert.CertData))
     else:
-        cert_data['type'] = "PreCertEntry"
+        cert_data['update_type'] = "PreCertEntry"
         extra_data = PreCertEntry.parse(base64.b64decode(entry['extra_data']))
         chain = [crypto.load_certificate(crypto.FILETYPE_ASN1, extra_data.LeafCert.CertData)]
 
