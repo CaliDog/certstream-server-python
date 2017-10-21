@@ -122,14 +122,23 @@ class WebServer(object):
                 },
                 indent=4
             ),
+            headers={"Access-Control-Allow-Origin": "http://localhost:8080"},
             content_type="application/json",
         )
 
     async def example_json_handler(self, _):
         if self.recently_seen:
-            return web.Response(body=json.dumps(list(self.recently_seen)[0], indent=4), content_type="application/json")
+            return web.Response(
+                body=json.dumps(list(self.recently_seen)[0], indent=4),
+                headers={"Access-Control-Allow-Origin": "http://localhost:8080"},
+                content_type="application/json",
+            )
         else:
-            return web.Response(body="{}", content_type="application/json")
+            return web.Response(
+                body="{}",
+                headers={"Access-Control-Allow-Origin": "http://localhost:8080"},
+                content_type="application/json"
+            )
 
     async def stats_handler(self, _):
         clients = {}
