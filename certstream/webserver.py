@@ -49,6 +49,7 @@ class WebServer(object):
         self.app.router.add_get("/example.json", self.example_json_handler)
         self.app.router.add_get("/{}".format(self.stats_url), self.stats_handler)
         self.app.router.add_get('/', self.root_handler)
+        self.app.router.add_get('/develop', self.dev_handler)
         self.app.router.add_static('/', os.path.join(os.path.dirname(__file__), '../html/_site/'))
 
     async def redirect_ssl_if_needed(self, _, handler):
@@ -72,6 +73,34 @@ class WebServer(object):
 
             for client in self.active_sockets:
                 await client.queue.put(data_packet)
+
+    async def dev_handler(self, request):
+        # If we have a websocket request
+        if request.headers.get("Upgrade"):
+            ws = web.WebSocketResponse()
+
+            await ws.prepare(request)
+
+            try:
+                for message in self.recently_seen:
+                    message_json = json.dumps(message)
+                    await ws.send_str(message_json)
+            except asyncio.CancelledError:
+                print('websocket cancelled')
+
+            await ws.close()
+
+            return ws
+
+        return web.Response(
+            body=json.dumps(
+                {
+                    "error": "Please use this url with a websocket client!"
+                },
+                indent=4
+            ),
+            content_type="application/json",
+        )
 
     async def root_handler(self, request, filename=None):
         # If we have a websocket request
