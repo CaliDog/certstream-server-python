@@ -28,7 +28,7 @@ Connecting over a normal HTTP connection will show the certstream frontpage (cur
 
 `/example.json` - Get the most recent certificate CertStream has seen
 
-`/stats` - Get statistics on the connected clients (override by setting the `STATS_URL` environment variable - we do this for certstream.calidog.io. 
+`/stats` - Get statistics on the connected clients (override by setting the `STATS_URL` environment variable - we do this for [certstream.calidog.io](https://certstream.calidog.io)). 
 
 ## Websocket Channels
 
