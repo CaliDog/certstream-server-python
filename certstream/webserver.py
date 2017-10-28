@@ -151,7 +151,7 @@ class WebServer(object):
                 },
                 indent=4
             ),
-            headers={"Access-Control-Allow-Origin": "http://localhost:8080"},
+            headers={"Access-Control-Allow-Origin": "*"},
             content_type="application/json",
         )
 
@@ -159,13 +159,13 @@ class WebServer(object):
         if self.recently_seen:
             return web.Response(
                 body=json.dumps(list(self.recently_seen)[0], indent=4),
-                headers={"Access-Control-Allow-Origin": "http://localhost:8080"},
+                headers={"Access-Control-Allow-Origin": "*"},
                 content_type="application/json",
             )
         else:
             return web.Response(
                 body="{}",
-                headers={"Access-Control-Allow-Origin": "http://localhost:8080"},
+                headers={"Access-Control-Allow-Origin": "*"},
                 content_type="application/json"
             )
 
