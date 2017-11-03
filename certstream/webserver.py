@@ -6,7 +6,7 @@ import os
 import time
 
 from aiohttp import web
-from aiohttp.web_urldispatcher import StaticResource
+from aiohttp.web_urldispatcher import Response
 
 from certstream.util import pretty_date, get_ip
 
@@ -15,7 +15,7 @@ WebsocketClientInfo = collections.namedtuple(
     ['external_ip', 'queue', 'connection_time', 'channel']
 )
 
-STATIC_INDEX = '''
+STATIC_INDEX = b'''
 <!DOCTYPE html>
 <html>
   <head>
@@ -45,7 +45,7 @@ class WebServer(object):
         self.watcher = transparency_watcher
 
         self.app = web.Application(loop=self.loop, middlewares=[self.redirect_ssl_if_needed,])
-        
+
         self._add_routes()
 
     def run_server(self):
@@ -151,7 +151,7 @@ class WebServer(object):
 
             return ws
         else:
-            return STATIC_INDEX
+            return Response(body=STATIC_INDEX)
 
     async def latest_json_handler(self, _):
         return web.Response(
