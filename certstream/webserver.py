@@ -45,8 +45,7 @@ class WebServer(object):
         self.watcher = transparency_watcher
 
         self.app = web.Application(loop=self.loop, middlewares=[self.redirect_ssl_if_needed,])
-        self.static_resource = StaticResource('/', os.path.join(os.path.dirname(__file__), '../html/dist/'))
-
+        
         self._add_routes()
 
     def run_server(self):
