@@ -31,7 +31,7 @@ class WebServer(object):
         self.watcher = transparency_watcher
 
         self.app = web.Application(loop=self.loop, middlewares=[self.redirect_ssl_if_needed,])
-        self.static_resource = StaticResource('/', os.path.join(os.path.dirname(__file__), '../html/_site/'))
+        self.static_resource = StaticResource('/', os.path.join(os.path.dirname(__file__), '../html/dist/'))
 
         self._add_routes()
 
@@ -50,7 +50,6 @@ class WebServer(object):
         self.app.router.add_get("/{}".format(self.stats_url), self.stats_handler)
         self.app.router.add_get('/', self.root_handler)
         self.app.router.add_get('/develop', self.dev_handler)
-        self.app.router.add_static('/', os.path.join(os.path.dirname(__file__), '../html/_site/'))
 
     async def redirect_ssl_if_needed(self, _, handler):
         async def middleware_handler(request):
@@ -139,8 +138,7 @@ class WebServer(object):
 
             return ws
         else:
-            if not filename:
-                request.match_info['filename'] = 'index.html'
+            request.match_info['filename'] = 'index.html'
             return await self.static_resource._handle(request)
 
     async def latest_json_handler(self, _):

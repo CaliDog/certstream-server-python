@@ -1,108 +1,12 @@
----
-layout: landing
----
-<!-- Banner -->
-<section id="banner">
-  <div class="inner">
-    <h2>{{ site.title }}</h2>
-    <p>{{ site.description | markdownify }}</p>
-  </div>
-  <a href="#one" class="more scrolly">Learn More</a>
-</section>
-
-<!-- One -->
-<section id="one" class="wrapper style1 special">
-  <div class="inner">
-    <header class="major">
-      <h2>TL;DR</h2>
-      <p class="left-aligned smaller">
-        Certstream is an intelligence feed that gives you real-time updates from the
-        <a href="https://www.certificate-transparency.org/what-is-ct">Certificate Transparency List</a>
-        network, allowing you to build tools that react to new certificates being issued in real time. We do all the
-        hard work of aggregating and parsing, and give you simple libraries that enable you to do awesome
-        things with minimal effort.
-        <br> <br>
-        It's our way of saying "thank you" to the amazing security community in general, as well as a good way to give people a taste of the sort of intelligence feeds that are powering our flagship product - <a href="https://phishfinder.io">PhishFinder</a>.
-      </p>
-    </header>
-    <header class="major">
-      <h2>Try it</h2>
-
-      <ul class="actions vertical certstream-connect-button">
-        <li><a class="button">Open the fire-hose</a>
-          <div class="wsi-holder">
-            <div class="websocket-indicator disconnected"></div>
-          </div>
-        </li>
-
-      </ul>
-      <figure class="highlight">
-        <pre><code class="language-bash live-demo" data-lang="bash"><div class="output-demo"><p class="marginless intro-info">Click the button above to connect to the CertStream network.</p></div></code></pre>
-      </figure>
-
-    </header>
-    <header class="major">
-
-      <h2>Get Started</h2>
-      <p class="left-aligned">Install CertStream</p>
-{% highlight bash %}
-~ $ pip install certstream
-{% endhighlight %}
-
-      <p class="left-aligned">CertStream CLI</p>
-      <p class="left-aligned smaller">
-        The default invocation of Certstream connects to the network and outputs a greppable format.
-      </p>
-      <figure class="highlight">
-        <pre><code class="language-bash" data-lang="bash">~ <span class="nv">$ </span>certstream<div class="output-cli"></div></code></pre>
-      </figure>
-
-      <p class="left-aligned smaller">It also supports substring matching and writing found matches to a file.</p>
-{% highlight bash %}
-~ $ certstream "paypal" -w /tmp/certs/paypal/
-Wrote paypal.com.preview-page.tk -> /tmp/certs/paypal/1494116022.paypal.com.preview-page.tk.der
-Wrote paypal.com.realtime.supports247realtime.net -> /tmp/certs/paypal/1494116049.paypal.com.realtime.supports247realtime.net.der
-Wrote www.paypal-securityunusualactivity.com -> /tmp/certs/paypal/1494116063.www.paypal-securityunusualactivity.com.der
-Wrote paypal.com.informationmail.me -> /tmp/certs/paypal/1494116090.paypal.com.informationmail.me.der
-Wrote www.paypal.com-signinto.limited -> /tmp/certs/paypal/1494116120.www.paypal.com-signinto.limited.der
-Wrote www.paypal.co.manager-help.com -> /tmp/certs/paypal/1494116123.www.paypal.co.manager-help.com.der
-Wrote paypal.com.resolution.limited -> /tmp/certs/paypal/1494116180.paypal.com.resolution.limited.der
-Wrote paypal.com-signin.summary-account.ml -> /tmp/certs/paypal/1494116195.paypal.com-signin.summary-account.ml.der
-Wrote www.paypal.com.service-information.nut.cc -> /tmp/certs/paypal/1494116255.www.paypal.com.service-information.nut.cc.der
-Wrote paypal.com-accountsfraud.com -> /tmp/certs/paypal/1494116281.paypal.com-accountsfraud.com.der
-{% endhighlight %}
-
-      <p class="left-aligned">Library Examples</p>
-
-      <p class="left-aligned smaller">
-        Right now we only support python, but we're also looking for other people to help maintian official clients in any language! If you want to contribute more please visit <a href="https://github.com/CaliDog/CertStream">our Github and open a ticket!</a></p>
-
-      <p class="left-aligned smaller">Looking for a keyword in the stream and dumping it to a local file:</p>
-
-    <script src="https://gist.github.com/Fitblip/924777595f21f04cf158f7a34f7ac358.js"></script>
-
-      <p class="left-aligned smaller">Looking for a keyword and posting to slack</p>
-
-    <script src="https://gist.github.com/Fitblip/003a5b4b68d5c70661751a099a87734a.js"></script>
-
-    </header>
-    <header class="major">
-
-      <h2>Simple(ish) Structures</h2>
-      <p class="left-aligned smaller">Heartbeat Messages:</p>
-{% highlight json %}
-{
-    "message_type": "heartbeat",
-    "timestamp": 1494117538.63217
-}
-{% endhighlight %}
-
-      <p class="left-aligned smaller">Certificate Updates (live example <a target="_blank" href="/example.json">here</a>): </p>
-
-
-    <figure class="highlight">
-        <pre><code id="json-parsed" class="language-json" data-lang="json"></code></pre>
-    </figure>
-    </header>
-  </div>
-</section>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
+  <script src="build.js"></script>
+</html>
