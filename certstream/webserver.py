@@ -15,6 +15,20 @@ WebsocketClientInfo = collections.namedtuple(
     ['external_ip', 'queue', 'connection_time', 'channel']
 )
 
+STATIC_INDEX = '''
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
+  </head>
+  <body>
+    <div id="app"></div>
+  <script type="text/javascript" src="https://storage.googleapis.com/certstream-dev/build.js"></script></body>
+</html>
+'''
+
 class WebServer(object):
     def __init__(self, _loop, transparency_watcher):
         self.active_sockets = []
@@ -138,8 +152,7 @@ class WebServer(object):
 
             return ws
         else:
-            request.match_info['filename'] = 'index.html'
-            return await self.static_resource._handle(request)
+            return STATIC_INDEX
 
     async def latest_json_handler(self, _):
         return web.Response(
