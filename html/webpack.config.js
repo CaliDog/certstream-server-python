@@ -85,7 +85,7 @@ module.exports = {
 
 if (process.env.NODE_ENV === 'production') {
   module.exports.devtool = '#source-map'
-    module.exports.output.publicPath = "https://storage.googleapis.com/certstream-dev/";
+    module.exports.output.publicPath = "https://storage.googleapis.com/certstream-prod/";
   // http://vue-loader.vuejs.org/en/workflow/production.html
   module.exports.plugins = (module.exports.plugins || []).concat([
     new webpack.DefinePlugin({

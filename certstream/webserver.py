@@ -15,7 +15,7 @@ WebsocketClientInfo = collections.namedtuple(
     ['external_ip', 'queue', 'connection_time', 'channel']
 )
 
-STATIC_INDEX = b'''
+STATIC_INDEX = '''
 <!DOCTYPE html>
 <html>
   <head>
@@ -25,9 +25,9 @@ STATIC_INDEX = b'''
   </head>
   <body>
     <div id="app"></div>
-  <script type="text/javascript" src="https://storage.googleapis.com/certstream-dev/build.js"></script></body>
+  <script type="text/javascript" src="https://storage.googleapis.com/certstream-prod/build.js?v={}"></script></body>
 </html>
-'''
+'''.format(time.time())
 
 class WebServer(object):
     def __init__(self, _loop, transparency_watcher):

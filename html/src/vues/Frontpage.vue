@@ -32,10 +32,10 @@
                     <div class="column right-column">
                         <p class="title">TL;DR</p>
                         <p class="content">
-                            Certstream is an intelligence feed that gives you real-time updates from the <a
+                            CertStream is an intelligence feed that gives you real-time updates from the <a
                                 href="https://www.certificate-transparency.org/what-is-ct">Certificate
-                            Transparency List network</a>, allowing you to use it as a building block to build tools that react to new certificates being
-                            issued in real time. We do all the hard work of watching, aggregating, and parsing the transparency lists, and give you simple
+                            Transparency List network</a>, allowing you to use it as a building block to make tools that react to new certificates being
+                            issued in real time. We do all the hard work of watching, aggregating, and parsing the transparency lists, and give you super simple
                             libraries that enable you to do awesome things with minimal effort.
                             <br><br>
                             It's our way of saying "thank you" to the amazing security community in general, as well as a
@@ -65,22 +65,22 @@
                                 <div class="columns language-buttons">
                                     <div class="python column" :class="{active: activeLanguage == 'python'}" @mouseover="setLanguage('python')">
                                         <i :class="{colored: activeLanguage == 'python'}" class="devicon-python-plain"></i>
-                                        Python
+                                        <a target="_blank" href="https://github.com/CaliDog/certstream-python">Python</a>
                                     </div>
 
                                     <div class="javascript column" :class="{active: activeLanguage == 'javascript'}" @mouseover="setLanguage('javascript')">
                                         <i :class="{colored: activeLanguage == 'javascript'}" class="devicon-javascript-plain"></i>
-                                        JavaScript
+                                        <a target="_blank" href="https://github.com/CaliDog/certstream-js">JavaScript</a>
                                     </div>
 
                                     <div class="go column" :class="{active: activeLanguage == 'go'}" @mouseover="setLanguage('go')">
                                         <i :class="{colored: activeLanguage == 'go'}" class="devicon-go-plain"></i>
-                                        Go
+                                        <a target="_blank" href="https://github.com/CaliDog/certstream-go">Go</a>
                                     </div>
 
                                     <div class="java column" :class="{active: activeLanguage == 'java'}" @mouseover="setLanguage('java')">
                                         <i :class="{colored: activeLanguage == 'java'}" class="devicon-java-plain"></i>
-                                        Java
+                                        <a target="_blank" href="https://github.com/CaliDog/certstream-java">Java</a>
                                     </div>
                                 </div>
                                 <div class="typer-wrapper">
@@ -100,8 +100,6 @@
                                 <p class="white-text">
                                     Installing the CLI is easy, all you have to do is <a @click="showPipInstructions">install the python library</a> and run it like any other program. It can be used to emit certificate data in a number of forms to be processed by other command line utilities (or just for storage). Pipe it into grep, sed, awk, jq, or any other utility to send alerts, gather statistics, or slice and dice certs as you want!
                                 </p>
-
-                                <h2 class="small-title">Demos</h2>
 
                                 <div class="columns demo-gifs">
                                     <div class="column">
@@ -888,7 +886,7 @@
                     margin-right: 0;
                 }
                 i{
-                    font-size: 3rem;
+                    font-size: 2rem;
                     padding-right: 1rem;
                     transition: color .5s;
                     &:not(.colored){
