@@ -151,7 +151,7 @@ class WebServer(object):
 
             return ws
         else:
-            return Response(body=STATIC_INDEX)
+            return Response(body=STATIC_INDEX, content_type="text/html")
 
     async def latest_json_handler(self, _):
         return web.Response(
