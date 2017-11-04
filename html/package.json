@@ -6,7 +6,8 @@
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack-dev-server --open --hot --host 0.0.0.0 --content-base src --debug",
-    "build": "cross-env NODE_ENV=production webpack --progress --hide-modules"
+    "build": "cross-env NODE_ENV=production webpack --progress --hide-modules",
+    "deploy": "gsutil rsync -a all-users -d dist/ gs://certstream-prod/"
   },
   "dependencies": {
     "animejs": "^2.2.0",
