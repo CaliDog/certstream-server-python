@@ -1,8 +1,8 @@
-var path = require('path')
+const path = require('path');
 
-var webpack = require('webpack')
+const webpack = require('webpack');
 
-var HtmlWebpackPlugin = require('html-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 
