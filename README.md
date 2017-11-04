@@ -4,7 +4,7 @@
     <p align="center">Aggregate and broadcast SSL certs as they're issued live.</p>
 </p>
 
-**Certstream-server** is a server written in python3 to aggregate, parse, and stream certificate data from multiple [certificate transparency lists](https://www.certificate-transparency.org/what-is-ct). It leverages concurrency to be relatively efficient and handle many clients at the same time. 
+**Certstream-server** is a server written in python3 to aggregate, parse, and stream certificate data from multiple [certificate transparency logs](https://www.certificate-transparency.org/what-is-ct). It leverages concurrency to be relatively efficient and handle many clients at the same time.
 
 ## Getting Started
 

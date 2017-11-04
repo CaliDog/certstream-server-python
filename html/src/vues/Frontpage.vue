@@ -10,7 +10,7 @@
                             CERTSTREAM
                         </h1>
                         <h2 class="subtitle animated fadeIn slow delayed">
-                            Real-time <a href="https://www.certificate-transparency.org/what-is-ct">certificate transparency list</a> update stream.
+                            Real-time <a href="https://www.certificate-transparency.org/what-is-ct">certificate transparency log</a> update stream.
                             <br>
                             See SSL certificates as they're issued in real time.
                         </h2>
@@ -34,8 +34,8 @@
                         <p class="content">
                             CertStream is an intelligence feed that gives you real-time updates from the <a
                                 href="https://www.certificate-transparency.org/what-is-ct">Certificate
-                            Transparency List network</a>, allowing you to use it as a building block to make tools that react to new certificates being
-                            issued in real time. We do all the hard work of watching, aggregating, and parsing the transparency lists, and give you super simple
+                            Transparency Log network</a>, allowing you to use it as a building block to make tools that react to new certificates being
+                            issued in real time. We do all the hard work of watching, aggregating, and parsing the transparency logs, and give you super simple
                             libraries that enable you to do awesome things with minimal effort.
                             <br><br>
                             It's our way of saying "thank you" to the amazing security community in general, as well as a
@@ -60,7 +60,7 @@
                                 <h2 id="install" class="small-title">Install CertStream</h2>
                                 <p class="white-text">
                                     CertStream is hosted <a href="https://github.com/search?q=org%3ACaliDog+certstream">on Github</a> and we currently have libraries for <a href="https://github.com/CaliDog/certstream-python">Python</a>, <a href="https://github.com/CaliDog/certstream-js">Javascript</a>, <a href="https://github.com/CaliDog/certstream-go">Go</a>, and <a href="https://github.com/CaliDog/certstream-java">Java</a>.
-                                    These libraries are intended to lower the barrier of entry to interacting with the <a href="https://www.certificate-transparency.org/what-is-ct">Certificate Transparency List</a> network so you can craft simple but powerful analytics tools with just a few lines of code!
+                                    These libraries are intended to lower the barrier of entry to interacting with the <a href="https://www.certificate-transparency.org/what-is-ct">Certificate Transparency Log</a> network so you can craft simple but powerful analytics tools with just a few lines of code!
                                 </p>
                                 <div class="columns language-buttons">
                                     <div class="python column" :class="{active: activeLanguage == 'python'}" @mouseover="setLanguage('python')">

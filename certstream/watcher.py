@@ -41,24 +41,24 @@ class TransparencyWatcher(object):
 
         self.logger.info("Initializing the CTL watcher")
 
-    def _initialize_ts_lists(self):
+    def _initialize_ts_logs(self):
         try:
-            self.transparency_lists = requests.get('https://www.gstatic.com/ct/log_list/log_list.json').json()
+            self.transparency_logs = requests.get('https://www.gstatic.com/ct/log_list/log_list.json').json()
         except Exception as e:
             self.logger.fatal("Invalid response from certificate directory! Exiting :(")
             sys.exit(1)
 
-        self.logger.info("Retrieved transparency list with {} entries to watch.".format(len(self.transparency_lists['logs'])))
-        for entry in self.transparency_lists['logs']:
+        self.logger.info("Retrieved transparency log with {} entries to watch.".format(len(self.transparency_logs['logs'])))
+        for entry in self.transparency_logs['logs']:
             if entry['url'].endswith('/'):
                 entry['url'] = entry['url'][:-1]
             self.logger.info("  + {}".format(entry['description']))
 
     def get_tasks(self):
-        self._initialize_ts_lists()
+        self._initialize_ts_logs()
 
         coroutines = []
-        for log in self.transparency_lists['logs']:
+        for log in self.transparency_logs['logs']:
             if log['url'] not in self.BAD_CT_SERVERS:
                 coroutines.append(self.watch_for_updates_task(log))
         return coroutines
@@ -85,7 +85,7 @@ class TransparencyWatcher(object):
 
                 tree_size = info.get('tree_size')
 
-                # TODO: Add in persistence and id tracking per list
+                # TODO: Add in persistence and id tracking per log
                 if latest_size == 0:
                     latest_size = tree_size
 
