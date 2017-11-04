@@ -104,7 +104,7 @@ class TransparencyWatcher(object):
                         continue
 
                     except Exception as e:
-                        print(e)
+                        print("Encountered an exception while getting new results! -> {}".format(e))
                         return
 
                     latest_size = tree_size
@@ -113,8 +113,8 @@ class TransparencyWatcher(object):
 
                 await asyncio.sleep(10)
         except Exception as e:
-            print(e)
-            sys.exit(1)
+            print("Encountered an exception while getting new results! -> {}".format(e))
+            return
 
     async def get_new_results(self, operator_information, latest_size, tree_size):
         # The top of the tree isn't actually a cert yet, so the total_size is what we're aiming for
