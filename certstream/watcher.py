@@ -105,7 +105,7 @@ class TransparencyWatcher(object):
 
                     except Exception as e:
                         print(e)
-                        sys.exit(1)
+                        return
 
                     latest_size = tree_size
                 else:
