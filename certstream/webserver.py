@@ -66,7 +66,7 @@ class WebServer(object):
 
     async def redirect_ssl_if_needed(self, _, handler):
         async def middleware_handler(request):
-            if not request.host.startswith('127.0.0.1') and request.headers.get('X-Forwarded-Proto', 'http') == 'http':
+            if os.environ.get('NOSSL') == None and not request.host.startswith('127.0.0.1') and request.headers.get('X-Forwarded-Proto', 'http') == 'http':
                 return web.HTTPFound(request.url.with_scheme('https'))
             response = await handler(request)
             return response
