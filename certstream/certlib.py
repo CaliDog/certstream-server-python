@@ -70,6 +70,7 @@ def serialize_certificate(certificate):
         "not_before": not_before_datetime.timestamp(),
         "not_after": not_after_datetime.timestamp(),
         "serial_number": '{0:x}'.format(int(certificate.get_serial_number())),
+        "fingerprint": str(certificate.digest("sha1"),'utf-8'),
         "as_der": base64.b64encode(
             crypto.dump_certificate(
                 crypto.FILETYPE_ASN1, certificate
