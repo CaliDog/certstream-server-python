@@ -18,6 +18,18 @@ pip install -r requirements.txt
 python run_server.py
 ```
 
+Or if python3 isn't your default interpreter:
+
+```
+# Install Dependencies
+pip3 install -r requirements.txt
+
+# Run CertStream
+python3 run_server.py
+```
+
+**Note** Running the server requires at least python 3.5, as we use the new `async`/`await` syntax internally.
+
 This will open up an http/websocket server on port 8080 (override this by setting a `PORT` environment variable). Connecting to it with a websocket client will subscribe you to a live aggregated stream of certificates and heartbeat messages. 
 
 Connecting over a normal HTTP connection will show the certstream frontpage (currently being re-written). 
