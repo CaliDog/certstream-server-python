@@ -1,6 +1,6 @@
 construct
 uvloop
-aiohttp
+aiohttp==2.3.2
 aioprocessing
 PyOpenSSL
 websockets
