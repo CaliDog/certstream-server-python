@@ -76,7 +76,7 @@ class TransparencyWatcher(object):
             while not self.stopped:
                 try:
                     async with aiohttp.ClientSession(loop=self.loop) as session:
-                        async with session.get("http://{}/ct/v1/get-sth".format(operator_information['url'])) as response:
+                        async with session.get("https://{}/ct/v1/get-sth".format(operator_information['url'])) as response:
                             info = await response.json()
                 except aiohttp.ClientError as e:
                     self.logger.info('[{}] Exception -> {}'.format(name, e))
@@ -135,7 +135,7 @@ class TransparencyWatcher(object):
                 assert end >= start, "End {} is less than start {}!".format(end, start)
                 assert end < tree_size, "End {} is less than tree_size {}".format(end, tree_size)
 
-                url = "http://{}/ct/v1/get-entries?start={}&end={}".format(operator_information['url'], start, end)
+                url = "https://{}/ct/v1/get-entries?start={}&end={}".format(operator_information['url'], start, end)
 
                 async with session.get(url) as response:
                     certificates = await response.json()
