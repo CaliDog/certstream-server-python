@@ -117,7 +117,7 @@ class WebServer(object):
     async def root_handler(self, request, filename=None):
         # If we have a websocket request
         if request.headers.get("Upgrade"):
-            requested_channel = request.GET.get('channel', 'default')
+            requested_channel = request.query.get('channel', 'default')
 
             if requested_channel not in self.valid_channels:
                 raise web.HTTPBadRequest(text="Invalid channel!")
