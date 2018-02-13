@@ -30,6 +30,7 @@ class TransparencyWatcher(object):
         "ctlog2.wosign.com",
         "flimsy.ct.nordu.net:8080",
         "log.certly.io",
+        "nessie2021.ct.digicert.com/log",
         "plausible.ct.nordu.net",
         "www.certificatetransparency.cn/ct",
     ]
