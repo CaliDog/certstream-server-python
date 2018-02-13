@@ -97,7 +97,7 @@ class TransparencyWatcher(object):
                             info = await response.json()
                 except aiohttp.ClientError as e:
                     self.logger.info('[{}] Exception -> {}'.format(name, e))
-                    await asyncio.sleep(5)
+                    await asyncio.sleep(600)
                     continue
 
                 tree_size = info.get('tree_size')
@@ -117,7 +117,7 @@ class TransparencyWatcher(object):
 
                     except aiohttp.ClientError as e:
                         self.logger.info('[{}] Exception -> {}'.format(name, e))
-                        await asyncio.sleep(5)
+                        await asyncio.sleep(600)
                         continue
 
                     except Exception as e:
@@ -128,7 +128,7 @@ class TransparencyWatcher(object):
                 else:
                     self.logger.debug('[{}][{}|{}] No update needed, continuing...'.format(name, latest_size, tree_size))
 
-                await asyncio.sleep(10)
+                await asyncio.sleep(30)
         except Exception as e:
             print("Encountered an exception while getting new results! -> {}".format(e))
             return

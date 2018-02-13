@@ -202,7 +202,7 @@ class WebServer(object):
     async def ws_heartbeats(self):
         self.logger.info("Starting WS heartbeat coro...")
         while True:
-            await asyncio.sleep(10)
+            await asyncio.sleep(30)
             self.logger.debug("Sending ping...")
             timestamp = time.time()
             for client in self.active_sockets:
