@@ -62,7 +62,6 @@ class WebServer(object):
         web.run_app(
             self.app,
             port=int(os.environ.get('PORT', 8080)),
-            loop=self.loop,
             ssl_context=ssl_ctx
         )
 
