@@ -9,24 +9,25 @@ from certstream.certlib import parse_ctl_entry
 
 
 class TransparencyWatcher(object):
+    # These are a list of servers that we shouldn't even try to connect to. In testing they either had bad
+    # DNS records, resolved to un-routable IP addresses, or didn't have valid SSL certificates.  
     BAD_CT_SERVERS = [
-        'ct.izenpe.com',
-        'ctserver.cnnic.cn',
-        'log.certly.io',
-        'ctlog.wosign.com',
-        "ct1.digicert-ct.com/log",
-        "log.certly.io",
-        "ct.izenpe.com",
-        "ct.ws.symantec.com",
-        "ct.wosign.com",
-        "vega.ws.symantec.com",
-        "ctserver.cnnic.cn",
+        "alpha.ctlogs.org",
+        "clicky.ct.letsencrypt.org",
+        "ct.akamai.com",
+        "ct.filippo.io/behindthesofa",
         "ct.gdca.com.cn",
-        "ct.izenpe.eus",
+        "ct.sheca.com",
+        "ct.startssl.com",
+        "ct.wosign.com",
+        "ctlog.api.venafi.com",
         "ctlog.gdca.com.cn",
-        "www.certificatetransparency.cn/ct/",
-        "https://ctlog-gen2.api.venafi.com/",
-        "sirius.ws.symantec.com",
+        "ctlog.sheca.com",
+        "ctlog.wosign.com",
+        "ctlog2.wosign.com",
+        "flimsy.ct.nordu.net:8080",
+        "log.certly.io",
+        "plausible.ct.nordu.net",
     ]
 
     MAX_BLOCK_SIZE = 64
