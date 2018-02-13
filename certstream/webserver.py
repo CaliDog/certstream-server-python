@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import time
+import ssl
 
 from aiohttp import web
 from aiohttp.web_urldispatcher import Response
@@ -44,17 +45,25 @@ class WebServer(object):
         self.loop = _loop
         self.watcher = transparency_watcher
 
-        self.app = web.Application(loop=self.loop, middlewares=[self.redirect_ssl_if_needed,])
+        self.app = web.Application(loop=self.loop)
 
         self._add_routes()
 
     def run_server(self):
         self.mux_stream = asyncio.ensure_future(self.mux_ctl_stream())
         self.heartbeat_coro = asyncio.ensure_future(self.ws_heartbeats())
+
+        if os.environ.get("NOSSL", False):
+            ssl_ctx = None
+        else:
+            ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+            ssl_ctx.load_cert_chain(certfile=os.getenv("SERVER_CERT", "server.crt"), keyfile=os.getenv("SERVER_KEY", "server.key"))
+
         web.run_app(
             self.app,
             port=int(os.environ.get('PORT', 8080)),
             loop=self.loop,
+            ssl_context=ssl_ctx
         )
 
     def _add_routes(self):
@@ -63,14 +72,6 @@ class WebServer(object):
         self.app.router.add_get("/{}".format(self.stats_url), self.stats_handler)
         self.app.router.add_get('/', self.root_handler)
         self.app.router.add_get('/develop', self.dev_handler)
-
-    async def redirect_ssl_if_needed(self, _, handler):
-        async def middleware_handler(request):
-            if os.environ.get('NOSSL') == None and not request.host.startswith('127.0.0.1') and request.headers.get('X-Forwarded-Proto', 'http') == 'http':
-                return web.HTTPFound(request.url.with_scheme('https'))
-            response = await handler(request)
-            return response
-        return middleware_handler
 
     async def mux_ctl_stream(self):
         while True:
