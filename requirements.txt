@@ -5,3 +5,4 @@ aioprocessing
 PyOpenSSL
 websockets
 requests
+yarl==0.18.0
