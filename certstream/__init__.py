@@ -9,8 +9,7 @@ from certstream.certlib import MerkleTreeHeader
 from certstream.watcher import TransparencyWatcher
 from certstream.webserver import WebServer
 
-logging.basicConfig(format='[%(levelname)s:%(name)s] %(asctime)s - %(message)s', level=logging.DEBUG)
-
+logging.basicConfig(format='[%(levelname)s:%(name)s] %(asctime)s - %(message)s', level=logging.INFO)
 
 def run():
     logging.info("Starting CertStream...")
