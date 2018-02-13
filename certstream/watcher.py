@@ -10,13 +10,15 @@ from certstream.certlib import parse_ctl_entry
 
 class TransparencyWatcher(object):
     # These are a list of servers that we shouldn't even try to connect to. In testing they either had bad
-    # DNS records, resolved to un-routable IP addresses, or didn't have valid SSL certificates.  
+    # DNS records, resolved to un-routable IP addresses, or didn't have valid SSL certificates.
     BAD_CT_SERVERS = [
         "alpha.ctlogs.org",
         "clicky.ct.letsencrypt.org",
         "ct.akamai.com",
         "ct.filippo.io/behindthesofa",
         "ct.gdca.com.cn",
+        "ct.izenpe.com",
+        "ct.izenpe.eus",
         "ct.sheca.com",
         "ct.startssl.com",
         "ct.wosign.com",
@@ -28,6 +30,7 @@ class TransparencyWatcher(object):
         "flimsy.ct.nordu.net:8080",
         "log.certly.io",
         "plausible.ct.nordu.net",
+        "www.certificatetransparency.cn/ct",
     ]
 
     MAX_BLOCK_SIZE = 64
