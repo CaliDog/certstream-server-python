@@ -4,6 +4,7 @@ import logging
 import math
 import requests
 import sys
+import os
 
 from certstream.certlib import parse_ctl_entry
 
@@ -58,10 +59,21 @@ class TransparencyWatcher(object):
                 entry['url'] = entry['url'][:-1]
             self.logger.info("  + {}".format(entry['description']))
 
+    async def _print_memory_usage(self, tracker):
+        while True:
+            await asyncio.sleep(60)
+            tracker.print_diff()
+
     def get_tasks(self):
         self._initialize_ts_logs()
 
         coroutines = []
+
+        if os.getenv("DEBUG_MEMORY", False):
+            from pympler.tracker import SummaryTracker
+            tracker = SummaryTracker()
+            coroutines.append(self._print_memory_usage(tracker))
+
         for log in self.transparency_logs['logs']:
             if log['url'] not in self.BAD_CT_SERVERS:
                 coroutines.append(self.watch_for_updates_task(log))
