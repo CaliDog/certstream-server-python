@@ -43,7 +43,7 @@ class TransparencyWatcher(object):
         self.queues = []
         self.logger = logging.getLogger('certstream.watcher')
 
-        self.stream = asyncio.Queue()
+        self.stream = asyncio.Queue(maxsize=3000)
 
         self.logger.info("Initializing the CTL watcher")
 
