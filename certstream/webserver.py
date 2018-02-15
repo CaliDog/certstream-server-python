@@ -8,12 +8,13 @@ import ssl
 
 from aiohttp import web
 from aiohttp.web_urldispatcher import Response
+from aiohttp.web_ws import WebSocketResponse
 
 from certstream.util import pretty_date, get_ip
 
 WebsocketClientInfo = collections.namedtuple(
     'WebsocketClientInfo',
-    ['external_ip', 'queue', 'connection_time', 'channel']
+    ['external_ip', 'queue', 'connection_time']
 )
 
 STATIC_INDEX = '''
@@ -33,11 +34,6 @@ STATIC_INDEX = '''
 class WebServer(object):
     def __init__(self, _loop, transparency_watcher):
         self.active_sockets = []
-        self.valid_channels = [
-            'default',
-            'dns-only',
-            'leaf-only',
-        ]
         self.recently_seen = collections.deque(maxlen=25)
         self.stats_url = os.getenv("STATS_URL", 'stats')
         self.logger = logging.getLogger('certstream.webserver')
@@ -84,7 +80,11 @@ class WebServer(object):
             self.recently_seen.append(data_packet)
 
             for client in self.active_sockets:
-                await client.queue.put(data_packet)
+                try:
+                    client.queue.put_nowait(data_packet)
+                except asyncio.QueueFull:
+                    pass
+
 
     async def dev_handler(self, request):
         # If we have a websocket request
@@ -114,44 +114,33 @@ class WebServer(object):
             content_type="application/json",
         )
 
-    async def root_handler(self, request, filename=None):
-        # If we have a websocket request
-        if request.headers.get("Upgrade"):
-            requested_channel = request.query.get('channel', 'default')
-
-            if requested_channel not in self.valid_channels:
-                raise web.HTTPBadRequest(text="Invalid channel!")
-
-            ws = web.WebSocketResponse()
-
-            await ws.prepare(request)
-
-            client_queue = asyncio.Queue()
-
-            websocket_info = WebsocketClientInfo(
-                external_ip=get_ip(request),
-                queue=client_queue,
-                connection_time=int(time.time()),
-                channel=requested_channel
-            )
-
-            self.active_sockets.append(websocket_info)
-
-            try:
-                while True:
-                    message = await client_queue.get()
-                    message_json = json.dumps(message)
-                    await ws.send_str(message_json)
-            except asyncio.CancelledError:
-                print('websocket cancelled')
-            finally:
-                self.active_sockets.remove(websocket_info)
-
-            await ws.close()
-
-            return ws
-        else:
+    async def root_handler(self, request):
+        resp = WebSocketResponse()
+        available = resp.can_prepare(request)
+        if not available:
             return Response(body=STATIC_INDEX, content_type="text/html")
+
+        await resp.prepare(request)
+
+        client_queue = asyncio.Queue(maxsize=500)
+
+        client = WebsocketClientInfo(
+            external_ip=get_ip(request),
+            queue=client_queue,
+            connection_time=int(time.time()),
+        )
+
+        try:
+            self.logger.info('Client {} joined.'.format(client.external_ip))
+            self.active_sockets.append(client)
+            while True:
+                message = await client_queue.get()
+                message_json = json.dumps(message)
+                await resp.send_str(message_json)
+
+        finally:
+            self.active_sockets.remove(client)
+            self.logger.info('Client {} disconnected.'.format(client.external_ip))
 
     async def latest_json_handler(self, _):
         return web.Response(
@@ -187,7 +176,7 @@ class WebServer(object):
                 "ip_address": client.external_ip,
                 "conection_time": client.connection_time,
                 "connection_length": pretty_date(client.connection_time),
-                "channel": client.channel
+                "queue_size": client.queue.qsize(),
             }
 
         return web.Response(
