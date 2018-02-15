@@ -40,7 +40,6 @@ class TransparencyWatcher(object):
     def __init__(self, _loop):
         self.loop = _loop
         self.stopped = False
-        self.queues = []
         self.logger = logging.getLogger('certstream.watcher')
 
         self.stream = asyncio.Queue(maxsize=3000)
@@ -60,10 +59,15 @@ class TransparencyWatcher(object):
                 entry['url'] = entry['url'][:-1]
             self.logger.info("  + {}".format(entry['description']))
 
-    async def _print_memory_usage(self, tracker):
+    async def _print_memory_usage(self):
+        import objgraph
+        import gc
+
         while True:
+            print("Stream backlog : {}".format(self.stream.qsize()))
+            gc.collect()
+            objgraph.show_growth()
             await asyncio.sleep(60)
-            tracker.print_diff()
 
     def get_tasks(self):
         self._initialize_ts_logs()
@@ -71,9 +75,7 @@ class TransparencyWatcher(object):
         coroutines = []
 
         if os.getenv("DEBUG_MEMORY", False):
-            from pympler.tracker import SummaryTracker
-            tracker = SummaryTracker()
-            coroutines.append(self._print_memory_usage(tracker))
+            coroutines.append(self._print_memory_usage())
 
         for log in self.transparency_logs['logs']:
             if log['url'] not in self.BAD_CT_SERVERS:
